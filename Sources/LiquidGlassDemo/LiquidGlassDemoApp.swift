@@ -44,6 +44,7 @@ struct Main {
 
 struct LiquidGlassDemoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @StateObject private var updater = Updater()
 
     var body: some Scene {
         WindowGroup {
@@ -60,6 +61,14 @@ struct LiquidGlassDemoApp: App {
         .windowResizability(.contentMinSize)
         .defaultSize(width: 1180, height: 760)
         .defaultPosition(.center)
+        .commands {
+            // Standard "Check for Updates…" item under the app menu. Disabled (and
+            // inert) unless running as a configured, signed bundle — see Updater.
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { updater.checkForUpdates() }
+                    .disabled(!updater.canCheckForUpdates)
+            }
+        }
     }
 }
 
