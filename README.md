@@ -34,6 +34,15 @@ short. Built as a Swift Package, so there's no Xcode project to open.
 | ![Ember](images/theme-ember.png) | ![Cyberpunk](images/theme-cyberpunk.png) |
 | ![Mono](images/theme-mono.png) | ![Slate (light)](images/theme-slate-light.png) |
 
+## Install
+
+Download the latest **`LiquidGlassDemo.dmg`** from the
+[Releases](https://github.com/SohrabZ/swiftui-macos-app/releases) page, open it, and
+drag the app to Applications. It's signed, notarized, and updates itself via
+[Sparkle](https://sparkle-project.org) — new versions arrive automatically, or check
+manually from **LiquidGlassDemo ▸ Check for Updates…**. Maintainers: see
+[RELEASE.md](RELEASE.md) for cutting a release.
+
 ## Requirements
 
 - **macOS 15+** — uses `pointerStyle`, `onScrollGeometryChange`, and `ScrollPosition`.

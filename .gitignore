@@ -1,9 +1,12 @@
 # Swift Package Manager
 .build/
 .swiftpm/
-Package.resolved
 *.xcodeproj
 *.xcworkspace
+# Package.resolved is committed so release builds pin the exact Sparkle version.
+
+# Release build output (the .app bundle and DMGs from scripts/build_app.sh).
+dist/
 
 # Xcode / DerivedData
 DerivedData/
