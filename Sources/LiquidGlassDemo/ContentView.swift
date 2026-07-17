@@ -9,14 +9,30 @@ struct ContentView: View {
     @State private var model = TransparencyModel()
     @State private var ui = UIState()
     @State private var theme = ThemeStore()
+    @State private var systemAppearance = SystemAppearance()
 
     // Fixed card size so the frosted-backdrop mask aligns exactly with the card.
     private let cardWidth: CGFloat = 420
     private let cardHeight: CGFloat = 340
 
+    /// The window's behind-window vibrancy material. Baked in (no longer user-
+    /// selectable): the desktop frosts through the side margins and sidebars while
+    /// the titlebar and content stay solid.
+    private static let windowMaterial: NSVisualEffectView.Material = .sidebar
+
     init(backdrop: MeshBackdrop = .demo, card: GlassCardModel = .demo) {
         self.backdrop = backdrop
         self.card = card
+    }
+
+    /// The concrete color scheme to render: the picked Light/Dark, or the live OS
+    /// scheme under System. Never nil, so reverting to System actually reverts.
+    private var effectiveScheme: ColorScheme {
+        switch ui.mode {
+        case .light: .light
+        case .dark: .dark
+        case .system: systemAppearance.colorScheme
+        }
     }
 
     var body: some View {
@@ -41,25 +57,29 @@ struct ContentView: View {
         // cursor from a header/modal control never lingers over the card/main
         // area. Interactive controls override this with their own pointer.
         .pointerStyle(.default)
-        // Reading ui.mode here makes the body observe it (so configure re-runs)
-        // and applies the Light/Dark/System scheme to the SwiftUI content.
-        .preferredColorScheme(ui.mode.colorScheme)
+        // Drives the SwiftUI content's color scheme. `.system` resolves to the
+        // real OS scheme (never nil), so switching back to System reverts cleanly.
+        .preferredColorScheme(effectiveScheme)
         .background(
-            // Passing windowAlpha makes the body observe it, so the slider
-            // live-updates the window's opacity.
-            WindowConfigurator(version: model.windowAlpha) { configure($0) }
+            // Passing the resolved scheme as the version makes the body observe it,
+            // so `configure` re-runs (updating the window chrome appearance) on every
+            // mode change and whenever the system appearance flips under System mode.
+            WindowConfigurator(version: effectiveScheme, material: Self.windowMaterial) { configure($0) }
         )
         // Injected once at the root so every descendant (including the modal
         // overlay and the themedBorder modifier) resolves the same theme.
         .environment(theme)
     }
 
-    /// The app shell: a translucent tint over the behind-window blur, plus the
-    /// header and three columns. Window Opacity fades the tint (not the content),
-    /// so at <100% the blurred desktop shows through the sidebars/margins.
+    /// The app shell: the themed fill over the behind-window vibrancy, plus the
+    /// header and three columns. When a Window Material is picked the fill drops
+    /// to clear, so the frosted desktop shows through the sidebars/margins/header.
     private var appContent: some View {
         ZStack {
-            theme.background
+            // Clear so the window's vibrancy material frosts the desktop through the
+            // side margins and sidebars. The header/titlebar and content paint their
+            // own solid fills on top.
+            Color.clear
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -92,15 +112,18 @@ struct ContentView: View {
         Rectangle().fill(theme.divider).frame(width: Layout.hairline).ignoresSafeArea(edges: .bottom)
     }
 
-    /// Flat header strip (traffic lights and accessory buttons overlay it).
+    /// Flat header strip (traffic lights and accessory buttons overlay it). Always
+    /// the solid theme fill — the titlebar stays opaque even when a Window Material
+    /// frosts the rest of the chrome behind it.
     private var headerStrip: some View {
         theme.background
             .frame(height: Layout.headerHeight)
             .frame(maxWidth: .infinity)
     }
 
-    /// Center column: the glass hero card over the grid, inset with padding on
-    /// all sides so the content doesn't touch the header, edges, or sidebars.
+    /// Center column: the glass hero card over the grid. The backdrop fills the
+    /// whole column edge-to-edge (opaque — no window frost shows through here);
+    /// only the sidebars carry the translucent vibrancy.
     private var mainColumn: some View {
         ZStack {
             backdropView                                     // sharp backdrop
@@ -121,10 +144,8 @@ struct ContentView: View {
 
             cardView
         }
-        .clipShape(RoundedRectangle(cornerRadius: Radius.content, style: .continuous))
-        .themedBorder(Radius.content)
-        .padding(Layout.mainInset)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
     }
 
     /// Sharp mesh + grid backdrop for the main content area.
@@ -179,16 +200,16 @@ struct ContentView: View {
 
     /// Window chrome, transparency, and accessories.
     private func configure(_ window: NSWindow) {
-        switch ui.mode {
-        case .light: window.appearance = NSAppearance(named: .aqua)
-        case .dark: window.appearance = NSAppearance(named: .darkAqua)
-        case .system: window.appearance = nil
-        }
+        // Match the window chrome to the resolved scheme. Under System this follows
+        // the live OS setting, so it reverts correctly when switching back from
+        // a forced Light/Dark.
+        window.appearance = NSAppearance(named: effectiveScheme == .dark ? .darkAqua : .aqua)
 
         window.isOpaque = false
-        window.backgroundColor = theme.backgroundNSColor
+        // Clear background lets the behind-window vibrancy view frost the desktop.
+        window.backgroundColor = .clear
         window.titlebarAppearsTransparent = true
-        window.alphaValue = model.windowAlpha   // clean, reliable window transparency
+        window.alphaValue = 1
 
         window.titleVisibility = .hidden
         window.title = ""

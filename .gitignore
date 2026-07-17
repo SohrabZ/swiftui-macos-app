@@ -1,10 +1,36 @@
 # Swift Package Manager
 .build/
-*.xcodeproj
+.swiftpm/
 Package.resolved
+*.xcodeproj
+*.xcworkspace
+
+# Xcode / DerivedData
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+
+# Swift / compiler artifacts
+*.o
+*.swiftmodule
+timeline.xctimeline
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
 
-# Generated logs (screenshots/appicon are kept for the README)
+# Editor / IDE (keep the shared VS Code launch config)
+.vscode/*
+!.vscode/launch.json
+.idea/
+*.swp
+*~
+
+# Generated verification artifacts — screenshots/appicon are kept for the README;
+# ignore the transient logs and the non-deterministic live screen capture.
 verify-artifacts/*.log
+verify-artifacts/screenshot-live.png

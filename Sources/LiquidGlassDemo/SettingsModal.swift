@@ -91,14 +91,6 @@ struct SettingsModal: View {
                 ThemePicker(ui: ui)
                 rowDivider
 
-                settingRow("Window Opacity",
-                           "See your desktop through the whole window. macOS only.") {
-                    OpacitySliderControl(value: $model.windowOpacity,
-                                         control: .window,
-                                         display: model.windowAlpha)
-                }
-                rowDivider
-
                 settingRow("Card Opacity",
                            "Fade just the glass card panel; the content stays readable.") {
                     OpacitySliderControl(value: $model.cardOpacity,
@@ -107,7 +99,7 @@ struct SettingsModal: View {
                 }
                 rowDivider
 
-                settingRow("Blur",
+                settingRow("Card Blur",
                            "Frost intensity of the glass backdrop behind the card.") {
                     BlurSliderControl(value: $model.blur, range: TransparencyModel.blurRange)
                 }

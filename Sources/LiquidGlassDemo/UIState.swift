@@ -1,4 +1,30 @@
 import SwiftUI
+import AppKit
+
+/// Tracks the OS-level Light/Dark setting so `.system` mode can resolve to a
+/// concrete `ColorScheme`. Resolving it ourselves — instead of relying on
+/// `.preferredColorScheme(nil)` — sidesteps a SwiftUI bug where switching back to
+/// System from a forced Light/Dark fails to revert. Updates live when the user
+/// flips the system appearance (KVO on the app's effective appearance, which
+/// tracks the system since we only ever force per-*window* appearances).
+@Observable
+@MainActor
+final class SystemAppearance {
+    private(set) var colorScheme: ColorScheme = SystemAppearance.resolve()
+
+    @ObservationIgnored private var observation: NSKeyValueObservation?
+
+    init() {
+        observation = NSApplication.shared.observe(\.effectiveAppearance) { [weak self] _, _ in
+            Task { @MainActor in self?.colorScheme = SystemAppearance.resolve() }
+        }
+    }
+
+    static func resolve() -> ColorScheme {
+        NSApplication.shared.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            ? .dark : .light
+    }
+}
 
 /// Light / Dark / System appearance mode.
 enum AppearanceMode: String, CaseIterable, Identifiable {
@@ -7,14 +33,6 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
     case system = "System"
 
     var id: String { rawValue }
-
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .light: .light
-        case .dark: .dark
-        case .system: nil
-        }
-    }
 
     var icon: String {
         switch self {

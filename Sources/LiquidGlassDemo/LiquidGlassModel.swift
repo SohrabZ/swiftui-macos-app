@@ -44,10 +44,6 @@ struct OpacityControl {
         Int((clamp(value) * 100).rounded())
     }
 
-    /// Whole-window alpha (`NSWindow.alphaValue`). Floor kept high so the window
-    /// never becomes effectively invisible / impossible to click.
-    static let window = OpacityControl(range: 0.5...1.0, defaultValue: 1.0)
-
     /// Card-panel opacity. Defaults below 100% so the glass/blur effect (grid
     /// showing through the frosted panel) is visible on first launch. May go
     /// fully transparent — the content in front stays readable.

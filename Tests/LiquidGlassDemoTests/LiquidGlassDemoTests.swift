@@ -44,23 +44,16 @@ final class LiquidGlassDemoTests: XCTestCase {
         XCTAssertFalse(broken.isValid)
     }
 
-    // MARK: - Opacity controls
+    // MARK: - Card opacity control
 
-    func testOpacityClampsToBounds() {
-        let window = OpacityControl.window
-        XCTAssertEqual(window.clamp(-0.5), window.range.lowerBound)
-        XCTAssertEqual(window.clamp(0.0), window.range.lowerBound)
-        XCTAssertEqual(window.clamp(5.0), window.range.upperBound)
+    func testCardOpacityClampsToBounds() {
+        let card = OpacityControl.card
+        XCTAssertEqual(card.clamp(-0.5), card.range.lowerBound)
+        XCTAssertEqual(card.clamp(5.0), card.range.upperBound)
     }
 
-    func testOpacityPassesThroughInRange() {
-        XCTAssertEqual(OpacityControl.window.clamp(0.7), 0.7, accuracy: 0.0001)
+    func testCardOpacityPassesThroughInRange() {
         XCTAssertEqual(OpacityControl.card.clamp(0.3), 0.3, accuracy: 0.0001)
-    }
-
-    func testWindowOpacityMinimumStaysReadable() {
-        XCTAssertGreaterThanOrEqual(OpacityControl.window.range.lowerBound, 0.5,
-                                    "At its most see-through, the window text must still be readable.")
     }
 
     func testCardOpacityCanGoFullyTransparent() {
@@ -70,16 +63,14 @@ final class LiquidGlassDemoTests: XCTestCase {
         XCTAssertEqual(card.clamp(0.0), 0.0)
     }
 
-    func testOpacityPercent() {
-        XCTAssertEqual(OpacityControl.window.percent(0.7), 70)
-        XCTAssertEqual(OpacityControl.window.percent(5.0), 100)   // clamped above
-        XCTAssertEqual(OpacityControl.window.percent(0.0), 50)    // clamped to window floor
-        XCTAssertEqual(OpacityControl.card.percent(0.0), 0)       // card floor is 0
+    func testCardOpacityPercent() {
+        XCTAssertEqual(OpacityControl.card.percent(0.3), 30)
+        XCTAssertEqual(OpacityControl.card.percent(5.0), 100)   // clamped above
+        XCTAssertEqual(OpacityControl.card.percent(0.0), 0)     // card floor is 0
     }
 
-    func testOpacityDefaults() {
-        XCTAssertEqual(OpacityControl.window.defaultValue, 1.0)  // window solid by default
-        XCTAssertEqual(OpacityControl.card.defaultValue, 0.8)    // card slightly glassy by default
+    func testCardOpacityDefault() {
+        XCTAssertEqual(OpacityControl.card.defaultValue, 0.8)   // card slightly glassy by default
     }
 
     // MARK: - Card content
