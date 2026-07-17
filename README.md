@@ -32,9 +32,9 @@ Package, so there's no Xcode project to open — `swift run` and go.
 
 | | |
 |---|---|
-| ![Nous](images/theme-nous.png) | ![Midnight](images/theme-midnight.png) |
-| ![Ember](images/theme-ember.png) | ![Cyberpunk](images/theme-cyberpunk.png) |
-| ![Mono](images/theme-mono.png) | ![Slate (light)](images/theme-slate-light.png) |
+| **Nous** (dark)<br>![Nous](images/theme-nous.png) | **Midnight** (dark)<br>![Midnight](images/theme-midnight.png) |
+| **Ember** (dark)<br>![Ember](images/theme-ember.png) | **Cyberpunk** (dark)<br>![Cyberpunk](images/theme-cyberpunk.png) |
+| **Mono** (dark)<br>![Mono](images/theme-mono.png) | **Slate** (light)<br>![Slate (light)](images/theme-slate-light.png) |
 
 ## Settings
 
