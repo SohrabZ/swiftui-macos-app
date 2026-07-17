@@ -27,11 +27,11 @@ jobs:
 
       # Hard gate: package must build and all tests must pass.
       - name: Build & test
-        run: ./verify.sh --no-visual
+        run: scripts/verify.sh --no-visual
 
       # Best-effort visual artifact (headless ImageRenderer). Never fails the run.
       - name: Render snapshot
-        run: ./verify.sh
+        run: scripts/verify.sh
         continue-on-error: true
 
       - name: Upload snapshot
