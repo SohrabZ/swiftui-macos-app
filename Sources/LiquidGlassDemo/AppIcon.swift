@@ -40,16 +40,6 @@ enum AppIcon {
 
     /// Writes the icon to a PNG (used to preview/verify it).
     static func writePNG(to path: String) {
-        guard let png = PNGRenderer.data(from: AppIconView(), scale: 1) else {
-            FileHandle.standardError.write(Data("icon: render failed\n".utf8))
-            exit(1)
-        }
-        do {
-            try png.write(to: URL(fileURLWithPath: path))
-            print("icon written to \(path)")
-        } catch {
-            FileHandle.standardError.write(Data("icon: \(error.localizedDescription)\n".utf8))
-            exit(1)
-        }
+        PNGRenderer.write(AppIconView(), to: path, scale: 1, label: "icon")
     }
 }

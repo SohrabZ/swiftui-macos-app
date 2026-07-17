@@ -15,14 +15,17 @@ struct ContentView: View {
     private let cardWidth: CGFloat = 420
     private let cardHeight: CGFloat = 340
 
-    /// The window's behind-window vibrancy material. Baked in (no longer user-
-    /// selectable): the desktop frosts through the side margins and sidebars while
-    /// the titlebar and content stay solid.
-    private static let windowMaterial: NSVisualEffectView.Material = .sidebar
+    /// The window's behind-window vibrancy material: the desktop frosts through the
+    /// side margins and sidebars while the titlebar and content stay solid. Defaults
+    /// to `.sidebar`; `--snapshot` passes `nil` to disable it so offscreen renders
+    /// don't sample the live desktop through the translucent chrome.
+    let windowMaterial: NSVisualEffectView.Material?
 
-    init(backdrop: MeshBackdrop = .demo, card: GlassCardModel = .demo) {
+    init(backdrop: MeshBackdrop = .demo, card: GlassCardModel = .demo,
+         windowMaterial: NSVisualEffectView.Material? = .sidebar) {
         self.backdrop = backdrop
         self.card = card
+        self.windowMaterial = windowMaterial
     }
 
     /// The concrete color scheme to render: the picked Light/Dark, or the live OS
@@ -60,12 +63,17 @@ struct ContentView: View {
         // Drives the SwiftUI content's color scheme. `.system` resolves to the
         // real OS scheme (never nil), so switching back to System reverts cleanly.
         .preferredColorScheme(effectiveScheme)
-        .background(
+        .background {
             // Passing the resolved scheme as the version makes the body observe it,
             // so `configure` re-runs (updating the window chrome appearance) on every
             // mode change and whenever the system appearance flips under System mode.
-            WindowConfigurator(version: effectiveScheme, material: Self.windowMaterial) { configure($0) }
-        )
+            // With no material (the `--snapshot` path) the vibrancy view is omitted
+            // entirely — `ImageRenderer` renders even a hidden `NSVisualEffectView`,
+            // sampling the live desktop, so it must not be in the tree at all.
+            if let windowMaterial {
+                WindowConfigurator(version: effectiveScheme, material: windowMaterial) { configure($0) }
+            }
+        }
         // Injected once at the root so every descendant (including the modal
         // overlay and the themedBorder modifier) resolves the same theme.
         .environment(theme)
@@ -88,7 +96,7 @@ struct ContentView: View {
                 Rectangle().fill(theme.divider).frame(height: Layout.hairline)
                 HStack(spacing: 0) {
                     if ui.leftSidebarVisible {
-                        LeftSidebar()
+                        SidebarTint()
                             .frame(width: Layout.leftSidebarWidth)
                             .transition(.move(edge: .leading).combined(with: .opacity))
                         columnDivider
@@ -98,7 +106,7 @@ struct ContentView: View {
 
                     if ui.rightSidebarVisible {
                         columnDivider
-                        RightSidebar()
+                        SidebarTint()
                             .frame(width: Layout.rightSidebarWidth)
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
@@ -223,11 +231,11 @@ struct ContentView: View {
             // The accessories are hosted in their own NSHostingViews, so the
             // environment must be injected into each rootView explicitly.
             window.addTitlebarAccessoryViewController(
-                HeaderAccessoryController(edge: .leading, width: 44,
+                HeaderAccessoryController(edge: .leading, width: Layout.leadingAccessoryWidth,
                                           content: AnyView(LeadingAccessoryView(ui: ui).environment(theme)))
             )
             window.addTitlebarAccessoryViewController(
-                HeaderAccessoryController(edge: .trailing, width: 84,
+                HeaderAccessoryController(edge: .trailing, width: Layout.trailingAccessoryWidth,
                                           content: AnyView(TrailingAccessoryView(ui: ui).environment(theme)))
             )
         }

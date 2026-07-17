@@ -22,7 +22,10 @@ struct Palette {
 @MainActor
 final class ThemeStore {
     var id: ThemeID = .slate {
-        didSet { UserDefaults.standard.set(id.rawValue, forKey: Prefs.theme) }
+        didSet {
+            UserDefaults.standard.set(id.rawValue, forKey: Prefs.theme)
+            p = Self.palettes[id] ?? Self.slate
+        }
     }
 
     init() {
@@ -32,7 +35,9 @@ final class ThemeStore {
         }
     }
 
-    private var p: Palette { Self.palettes[id] ?? Self.slate }
+    /// The current palette, resolved once per `id` change rather than on every
+    /// color read (every themed view reads several of these properties).
+    private var p: Palette = ThemeStore.slate
 
     var background: Color { p.background }
     var panel: Color { p.panel }
