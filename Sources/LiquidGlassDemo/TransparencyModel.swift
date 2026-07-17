@@ -3,6 +3,7 @@ import SwiftUI
 /// Shared transparency state. Persisted to `UserDefaults` so the values survive
 /// relaunches.
 @Observable
+@MainActor
 final class TransparencyModel {
     var cardOpacity: Double = OpacityControl.card.defaultValue {
         didSet { UserDefaults.standard.set(cardOpacity, forKey: Prefs.cardOpacity) }
@@ -24,5 +25,10 @@ final class TransparencyModel {
     /// Opacity applied to the card's glass panel only.
     var cardAlpha: Double {
         OpacityControl.card.clamp(cardOpacity)
+    }
+
+    /// Blur intensity as a whole-number percentage of the max, for display.
+    var blurPercent: Int {
+        Int((blur / Self.blurRange.upperBound * 100).rounded())
     }
 }

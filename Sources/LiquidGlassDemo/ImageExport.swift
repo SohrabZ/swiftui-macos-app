@@ -16,4 +16,24 @@ enum PNGRenderer {
         }
         return rep.representation(using: .png, properties: [:])
     }
+
+    /// Renders `view` to a PNG file. On any failure it writes `label: <reason>` to
+    /// stderr and exits non-zero — this is the shared path for the `--snapshot` and
+    /// `--icon` command-line tools, which have no UI to report errors through.
+    static func write(_ view: some View, to path: String, scale: CGFloat, label: String) {
+        func fail(_ message: String) -> Never {
+            FileHandle.standardError.write(Data("\(label): \(message)\n".utf8))
+            exit(1)
+        }
+
+        guard let png = data(from: view, scale: scale) else {
+            fail("could not render view to PNG")
+        }
+        do {
+            try png.write(to: URL(fileURLWithPath: path))
+            print("\(label) written to \(path)")
+        } catch {
+            fail("could not write \(path): \(error.localizedDescription)")
+        }
+    }
 }

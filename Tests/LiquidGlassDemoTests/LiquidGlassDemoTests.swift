@@ -82,6 +82,22 @@ final class LiquidGlassDemoTests: XCTestCase {
         XCTAssertFalse(card.subtitle.isEmpty)
     }
 
+    // MARK: - Theme tables stay in sync
+
+    @MainActor
+    func testEveryThemeHasAPalette() {
+        for id in ThemeID.allCases {
+            XCTAssertNotNil(ThemeStore.palettes[id],
+                            "ThemeStore.palettes is missing an entry for \(id).")
+        }
+    }
+
+    func testThemeSwatchesCoverAllThemes() {
+        let swatchIDs = Set(ThemeSwatch.all.map(\.themeID))
+        XCTAssertEqual(swatchIDs, Set(ThemeID.allCases),
+                       "ThemeSwatch.all and ThemeID must cover the same themes — keep the swatch previews in sync with the palettes.")
+    }
+
     // MARK: - View wiring
 
     @MainActor

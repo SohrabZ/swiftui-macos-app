@@ -10,13 +10,14 @@ import AppKit
 /// (an AppKit subview injected into the `NSHostingView` does not — it only lands
 /// where macOS draws its default titlebar vibrancy). With `.behindWindow` blending
 /// it frosts the desktop showing through wherever the SwiftUI content is
-/// translucent. When `material` is `nil` the effect view is hidden and the window
-/// stays opaque.
+/// translucent. The material is currently baked in by the caller; passing `nil`
+/// hides the effect view for an opaque window (kept for reuse).
 ///
-/// Reading `material` from observed state makes the owning view re-run this on
-/// change, so the picker live-updates the real window. When rendered without a
-/// window (the `--snapshot` path uses `ImageRenderer`, which has no window),
-/// `view.window` is nil and `configure` simply doesn't run — no crash.
+/// The `version` value is read from observed state (the resolved appearance), so
+/// the owning view re-runs `configure` when it changes — that's what live-updates
+/// the window chrome on Light/Dark/System switches. When rendered without a window
+/// (the `--snapshot` path uses `ImageRenderer`, which has no window), `view.window`
+/// is nil and `configure` simply doesn't run — no crash.
 struct WindowConfigurator: NSViewRepresentable {
     /// A value the caller reads from observed state (e.g. the appearance mode).
     /// Passing it here makes the owning view observe that state and re-run

@@ -8,7 +8,7 @@ final class HeaderAccessoryController: NSTitlebarAccessoryViewController {
         super.init(nibName: nil, bundle: nil)
         layoutAttribute = edge
         let hosting = NSHostingView(rootView: content)
-        hosting.frame = NSRect(x: 0, y: 0, width: width, height: 28)
+        hosting.frame = NSRect(x: 0, y: 0, width: width, height: Layout.accessoryHeight)
         view = hosting
     }
 
