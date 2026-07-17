@@ -30,11 +30,20 @@ Package, so there's no Xcode project to open — `swift run` and go.
 
 ## Themes
 
-| | |
-|---|---|
-| **Nous** (dark)<br>![Nous](images/theme-nous.png) | **Midnight** (dark)<br>![Midnight](images/theme-midnight.png) |
-| **Ember** (dark)<br>![Ember](images/theme-ember.png) | **Cyberpunk** (dark)<br>![Cyberpunk](images/theme-cyberpunk.png) |
-| **Mono** (dark)<br>![Mono](images/theme-mono.png) | **Slate** (light)<br>![Slate (light)](images/theme-slate-light.png) |
+<table>
+  <tr>
+    <td><b>Nous</b> (dark)<br><img src="images/theme-nous.png" alt="Nous"></td>
+    <td><b>Midnight</b> (dark)<br><img src="images/theme-midnight.png" alt="Midnight"></td>
+  </tr>
+  <tr>
+    <td><b>Ember</b> (dark)<br><img src="images/theme-ember.png" alt="Ember"></td>
+    <td><b>Cyberpunk</b> (dark)<br><img src="images/theme-cyberpunk.png" alt="Cyberpunk"></td>
+  </tr>
+  <tr>
+    <td><b>Mono</b> (dark)<br><img src="images/theme-mono.png" alt="Mono"></td>
+    <td><b>Slate</b> (light)<br><img src="images/theme-slate-light.png" alt="Slate (light)"></td>
+  </tr>
+</table>
 
 ## Settings
 
