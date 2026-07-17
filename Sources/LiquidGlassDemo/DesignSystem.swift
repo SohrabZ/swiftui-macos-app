@@ -40,7 +40,6 @@ enum Typography {
 
 /// `UserDefaults` keys for persisted settings, in one place.
 enum Prefs {
-    static let windowOpacity = "lg.windowOpacity"
     static let cardOpacity = "lg.cardOpacity"
     static let leftSidebar = "lg.leftSidebar"
     static let rightSidebar = "lg.rightSidebar"
