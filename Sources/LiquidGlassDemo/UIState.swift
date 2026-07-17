@@ -79,6 +79,10 @@ final class UIState {
         if let raw = defaults.string(forKey: Prefs.mode), let m = AppearanceMode(rawValue: raw) {
             mode = m
         }
+        // Asset-capture aid: boot straight into the settings modal so it can be
+        // screenshotted from the live app (it can't be captured offscreen — the
+        // scrollable content and NSSlider-backed controls need a real window).
+        if ProcessInfo.processInfo.environment["LGD_OPEN_SETTINGS"] == "1" { showSettings = true }
     }
 
     /// Confines a sidebar width to the resizable bounds.

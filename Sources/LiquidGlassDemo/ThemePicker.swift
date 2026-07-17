@@ -119,6 +119,7 @@ struct ThemePicker: View {
                     .contentShape(RoundedRectangle(cornerRadius: Radius.control))
                 }
                 .buttonStyle(.plain)
+                .focusEffectDisabled()
                 .pointerStyle(.link)
             }
         }
@@ -162,6 +163,7 @@ struct ThemePicker: View {
             .contentShape(RoundedRectangle(cornerRadius: Radius.content))
         }
         .buttonStyle(.plain)
+        .focusEffectDisabled()
         .pointerStyle(.link)
     }
 
