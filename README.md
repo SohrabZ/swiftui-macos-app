@@ -30,18 +30,51 @@ Package, so there's no Xcode project to open — `swift run` and go.
 
 ## Themes
 
+Every theme ships with a light and a dark variant.
+
 <table>
+  <tr><th>Dark</th><th>Light</th></tr>
   <tr>
-    <td><b>Nous</b> (dark)<br><img src="images/theme-nous.png" alt="Nous"></td>
-    <td><b>Midnight</b> (dark)<br><img src="images/theme-midnight.png" alt="Midnight"></td>
+    <td colspan="2"><b>Slate</b></td>
   </tr>
   <tr>
-    <td><b>Ember</b> (dark)<br><img src="images/theme-ember.png" alt="Ember"></td>
-    <td><b>Cyberpunk</b> (dark)<br><img src="images/theme-cyberpunk.png" alt="Cyberpunk"></td>
+    <td><img src="images/theme-slate-dark.png" alt="Slate (dark)"></td>
+    <td><img src="images/theme-slate-light.png" alt="Slate (light)"></td>
   </tr>
   <tr>
-    <td><b>Mono</b> (dark)<br><img src="images/theme-mono.png" alt="Mono"></td>
-    <td><b>Slate</b> (light)<br><img src="images/theme-slate-light.png" alt="Slate (light)"></td>
+    <td colspan="2"><b>Nous</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/theme-nous-dark.png" alt="Nous (dark)"></td>
+    <td><img src="images/theme-nous-light.png" alt="Nous (light)"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Midnight</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/theme-midnight-dark.png" alt="Midnight (dark)"></td>
+    <td><img src="images/theme-midnight-light.png" alt="Midnight (light)"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Ember</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/theme-ember-dark.png" alt="Ember (dark)"></td>
+    <td><img src="images/theme-ember-light.png" alt="Ember (light)"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Mono</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/theme-mono-dark.png" alt="Mono (dark)"></td>
+    <td><img src="images/theme-mono-light.png" alt="Mono (light)"></td>
+  </tr>
+  <tr>
+    <td colspan="2"><b>Cyberpunk</b></td>
+  </tr>
+  <tr>
+    <td><img src="images/theme-cyberpunk-dark.png" alt="Cyberpunk (dark)"></td>
+    <td><img src="images/theme-cyberpunk-light.png" alt="Cyberpunk (light)"></td>
   </tr>
 </table>
 
