@@ -88,7 +88,7 @@ struct ContentView: View {
                 Rectangle().fill(theme.divider).frame(height: Layout.hairline)
                 HStack(spacing: 0) {
                     if ui.leftSidebarVisible {
-                        LeftSidebar()
+                        SidebarTint()
                             .frame(width: Layout.leftSidebarWidth)
                             .transition(.move(edge: .leading).combined(with: .opacity))
                         columnDivider
@@ -98,7 +98,7 @@ struct ContentView: View {
 
                     if ui.rightSidebarVisible {
                         columnDivider
-                        RightSidebar()
+                        SidebarTint()
                             .frame(width: Layout.rightSidebarWidth)
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
@@ -223,11 +223,11 @@ struct ContentView: View {
             // The accessories are hosted in their own NSHostingViews, so the
             // environment must be injected into each rootView explicitly.
             window.addTitlebarAccessoryViewController(
-                HeaderAccessoryController(edge: .leading, width: 44,
+                HeaderAccessoryController(edge: .leading, width: Layout.leadingAccessoryWidth,
                                           content: AnyView(LeadingAccessoryView(ui: ui).environment(theme)))
             )
             window.addTitlebarAccessoryViewController(
-                HeaderAccessoryController(edge: .trailing, width: 84,
+                HeaderAccessoryController(edge: .trailing, width: Layout.trailingAccessoryWidth,
                                           content: AnyView(TrailingAccessoryView(ui: ui).environment(theme)))
             )
         }

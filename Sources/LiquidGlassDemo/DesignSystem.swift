@@ -3,6 +3,7 @@ import SwiftUI
 /// Corner radii used across the UI, named by role so they stay consistent.
 enum Radius {
     static let control: CGFloat = 6   // icon-button hover, segmented pills
+    static let row: CGFloat = 7       // settings nav row highlight
     static let field: CGFloat = 8     // search field, mode-picker track
     static let content: CGFloat = 12  // main content panel, theme cards
     static let panel: CGFloat = 16    // settings modal panel
@@ -17,6 +18,15 @@ enum Layout {
     static let rightSidebarWidth: CGFloat = 280
     static let mainInset: CGFloat = 20
     static let hairline: CGFloat = 1
+
+    // Titlebar accessory hosting (see HeaderAccessory / ContentView.configure).
+    static let accessoryHeight: CGFloat = 28
+    static let leadingAccessoryWidth: CGFloat = 44
+    static let trailingAccessoryWidth: CGFloat = 84
+
+    // Chrome icon button (IconButton).
+    static let iconButtonWidth: CGFloat = 26
+    static let iconButtonHeight: CGFloat = 24
 }
 
 /// The UI type ramp. Named by role so the app's chrome stays consistent and a

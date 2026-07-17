@@ -16,7 +16,7 @@ struct IconButton: View {
             Image(systemName: systemName)
                 .font(Typography.icon)
                 .foregroundStyle(hovering ? theme.textPrimary : theme.textSecondary)
-                .frame(width: 26, height: 24)
+                .frame(width: Layout.iconButtonWidth, height: Layout.iconButtonHeight)
                 .background(
                     RoundedRectangle(cornerRadius: Radius.control, style: .continuous)
                         .fill(hovering ? theme.hoverFill : .clear)
@@ -27,6 +27,7 @@ struct IconButton: View {
         .focusEffectDisabled()
         .pointerStyle(.link)
         .help(tooltip)
+        .accessibilityLabel(tooltip)
         .onHover { hovering = $0 }
     }
 }

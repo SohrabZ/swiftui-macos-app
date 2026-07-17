@@ -72,7 +72,7 @@ struct SettingsModal: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(
-                RoundedRectangle(cornerRadius: 7)
+                RoundedRectangle(cornerRadius: Radius.row)
                     .fill(section == item ? theme.selectionFill : .clear)
             )
             .contentShape(Rectangle())
@@ -93,15 +93,17 @@ struct SettingsModal: View {
 
                 settingRow("Card Opacity",
                            "Fade just the glass card panel; the content stays readable.") {
-                    OpacitySliderControl(value: $model.cardOpacity,
-                                         control: .card,
-                                         display: model.cardOpacity)
+                    SliderControl(value: $model.cardOpacity,
+                                  range: OpacityControl.card.range,
+                                  percent: OpacityControl.card.percent(model.cardOpacity))
                 }
                 rowDivider
 
                 settingRow("Card Blur",
                            "Frost intensity of the glass backdrop behind the card.") {
-                    BlurSliderControl(value: $model.blur, range: TransparencyModel.blurRange)
+                    SliderControl(value: $model.blur,
+                                  range: TransparencyModel.blurRange,
+                                  percent: model.blurPercent)
                 }
             }
             // Extra top/right padding reserves space for the close icon
@@ -148,31 +150,10 @@ struct SettingsModal: View {
     }
 }
 
-/// Inline opacity slider with a trailing live percentage (right-aligned control).
-struct OpacitySliderControl: View {
-    @Binding var value: Double
-    let control: OpacityControl
-    let display: Double
-
-    var body: some View {
-        SliderControl(value: $value, range: control.range, percent: control.percent(display))
-    }
-}
-
-/// Inline blur slider showing intensity as a percentage of its max.
-struct BlurSliderControl: View {
-    @Binding var value: Double
-    let range: ClosedRange<Double>
-
-    var body: some View {
-        SliderControl(value: $value, range: range,
-                      percent: Int((value / range.upperBound * 100).rounded()))
-    }
-}
-
-/// Shared inline slider + trailing percentage. Nudges its width 1pt after appear
-/// so `NSSlider` draws its knob without needing a first hover.
-private struct SliderControl: View {
+/// Inline slider + trailing live percentage (right-aligned control). Nudges its
+/// width 1pt after appear so `NSSlider` draws its knob without needing a first
+/// hover. Callers pass the already-computed `percent` for the trailing readout.
+struct SliderControl: View {
     @Binding var value: Double
     let range: ClosedRange<Double>
     let percent: Int

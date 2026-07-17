@@ -27,9 +27,9 @@ enum GlassHover {
 }
 
 /// A clamped opacity control (1.0 = fully solid, lower = more see-through).
-/// Extracted so the range and clamping are testable without any UI. Used twice —
-/// once for the whole-window alpha, once for the card background — each with its
-/// own allowed range.
+/// Extracted so the range and clamping are testable without any UI. Currently only
+/// the card background uses it (`.card`); it stays parameterized by range so other
+/// opacity controls can reuse it.
 struct OpacityControl {
     let range: ClosedRange<Double>
     let defaultValue: Double

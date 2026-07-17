@@ -70,7 +70,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
+    // Keep the app running after its last window closes (standard macOS behavior):
+    // the menu bar stays, and clicking the Dock icon reopens a window.
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
+    }
+
+    // Recreate a window when the app is reactivated (Dock click / ⌘-Tab) with no
+    // visible windows. `WindowGroup` supplies the window; this just asks AppKit to
+    // restore one.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         true
     }
 }
@@ -82,21 +91,6 @@ enum Snapshot {
     static func write(to path: String, size: CGSize) {
         let content = ContentView()
             .frame(width: size.width, height: size.height)
-
-        guard let png = PNGRenderer.data(from: content, scale: 2) else {
-            fail("could not render view to PNG")
-        }
-
-        do {
-            try png.write(to: URL(fileURLWithPath: path))
-            print("snapshot written to \(path)")
-        } catch {
-            fail("could not write \(path): \(error.localizedDescription)")
-        }
-    }
-
-    private static func fail(_ message: String) -> Never {
-        FileHandle.standardError.write(Data("snapshot: \(message)\n".utf8))
-        exit(1)
+        PNGRenderer.write(content, to: path, scale: 2, label: "snapshot")
     }
 }

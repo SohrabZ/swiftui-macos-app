@@ -47,6 +47,7 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 /// accessory buttons (sidebar toggles + settings). Sidebar visibility and the
 /// appearance mode are persisted to `UserDefaults`; `showSettings` is transient.
 @Observable
+@MainActor
 final class UIState {
     var leftSidebarVisible = true {
         didSet { UserDefaults.standard.set(leftSidebarVisible, forKey: Prefs.leftSidebar) }
