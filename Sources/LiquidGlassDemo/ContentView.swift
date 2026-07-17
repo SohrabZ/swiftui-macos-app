@@ -97,27 +97,27 @@ struct ContentView: View {
                 HStack(spacing: 0) {
                     if ui.leftSidebarVisible {
                         SidebarTint()
-                            .frame(width: Layout.leftSidebarWidth)
+                            .frame(width: ui.leftSidebarWidth)
+                            .overlay(alignment: .trailing) {
+                                ResizableColumnDivider(ui: ui, edge: .leading)
+                            }
                             .transition(.move(edge: .leading).combined(with: .opacity))
-                        columnDivider
                     }
 
                     mainColumn
 
                     if ui.rightSidebarVisible {
-                        columnDivider
                         SidebarTint()
-                            .frame(width: Layout.rightSidebarWidth)
+                            .frame(width: ui.rightSidebarWidth)
+                            .overlay(alignment: .leading) {
+                                ResizableColumnDivider(ui: ui, edge: .trailing)
+                            }
                             .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
                 }
             }
             .ignoresSafeArea(edges: .top)
         }
-    }
-
-    private var columnDivider: some View {
-        Rectangle().fill(theme.divider).frame(width: Layout.hairline).ignoresSafeArea(edges: .bottom)
     }
 
     /// Flat header strip (traffic lights and accessory buttons overlay it). Always

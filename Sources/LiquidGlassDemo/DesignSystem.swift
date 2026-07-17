@@ -14,10 +14,15 @@ enum Radius {
 /// Fixed layout metrics for the app shell.
 enum Layout {
     static let headerHeight: CGFloat = 32
-    static let leftSidebarWidth: CGFloat = 240
-    static let rightSidebarWidth: CGFloat = 280
+    static let leftSidebarWidth: CGFloat = 240   // default; user-resizable at runtime
+    static let rightSidebarWidth: CGFloat = 280  // default; user-resizable at runtime
     static let mainInset: CGFloat = 20
     static let hairline: CGFloat = 1
+
+    // User-resizable sidebar bounds and the drag handle straddling each column divider.
+    static let sidebarMinWidth: CGFloat = 180
+    static let sidebarMaxWidth: CGFloat = 420
+    static let resizeHandleWidth: CGFloat = 10   // invisible hit area centered on the divider
 
     // Titlebar accessory hosting (see HeaderAccessory / ContentView.configure).
     static let accessoryHeight: CGFloat = 28
@@ -53,6 +58,8 @@ enum Prefs {
     static let cardOpacity = "lg.cardOpacity"
     static let leftSidebar = "lg.leftSidebar"
     static let rightSidebar = "lg.rightSidebar"
+    static let leftSidebarWidth = "lg.leftSidebarWidth"
+    static let rightSidebarWidth = "lg.rightSidebarWidth"
     static let mode = "lg.mode"
     static let theme = "lg.theme"
     static let blur = "lg.blur"

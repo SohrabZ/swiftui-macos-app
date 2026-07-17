@@ -55,6 +55,12 @@ final class UIState {
     var rightSidebarVisible = false {
         didSet { UserDefaults.standard.set(rightSidebarVisible, forKey: Prefs.rightSidebar) }
     }
+    var leftSidebarWidth: CGFloat = Layout.leftSidebarWidth {
+        didSet { UserDefaults.standard.set(Double(leftSidebarWidth), forKey: Prefs.leftSidebarWidth) }
+    }
+    var rightSidebarWidth: CGFloat = Layout.rightSidebarWidth {
+        didSet { UserDefaults.standard.set(Double(rightSidebarWidth), forKey: Prefs.rightSidebarWidth) }
+    }
     var mode: AppearanceMode = .dark {
         didSet { UserDefaults.standard.set(mode.rawValue, forKey: Prefs.mode) }
     }
@@ -64,8 +70,19 @@ final class UIState {
         let defaults = UserDefaults.standard
         if let v = defaults.optionalBool(forKey: Prefs.leftSidebar) { leftSidebarVisible = v }
         if let v = defaults.optionalBool(forKey: Prefs.rightSidebar) { rightSidebarVisible = v }
+        if let w = defaults.optionalDouble(forKey: Prefs.leftSidebarWidth) {
+            leftSidebarWidth = Self.clampSidebar(CGFloat(w))
+        }
+        if let w = defaults.optionalDouble(forKey: Prefs.rightSidebarWidth) {
+            rightSidebarWidth = Self.clampSidebar(CGFloat(w))
+        }
         if let raw = defaults.string(forKey: Prefs.mode), let m = AppearanceMode(rawValue: raw) {
             mode = m
         }
+    }
+
+    /// Confines a sidebar width to the resizable bounds.
+    static func clampSidebar(_ width: CGFloat) -> CGFloat {
+        min(max(width, Layout.sidebarMinWidth), Layout.sidebarMaxWidth)
     }
 }
