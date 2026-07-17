@@ -4,11 +4,13 @@
   <img src="images/hero.png" alt="LiquidGlassDemo — a Liquid Glass card over a grid backdrop in the Slate dark theme" width="820">
 </p>
 
-A small macOS app that shows off a **Liquid Glass** hero card inside a themed,
-three-column window shell. It's a focused, readable reference for building modern
-macOS UI in pure SwiftUI — adaptive theming, live Light/Dark/System switching, a
-native settings modal, and the AppKit bridges you reach for when SwiftUI stops
-short. Built as a Swift Package, so there's no Xcode project to open.
+A **boilerplate macOS app template** built in pure SwiftUI — clone it as the
+starting point for your own desktop app. It ships a themed **Liquid Glass** window
+shell (a collapsible three-column layout with a hero card over a grid backdrop)
+already wired to the pieces every real app needs: adaptive multi-theme support,
+live Light/Dark/System switching, a native settings modal, persisted preferences,
+and the AppKit bridges you reach for when SwiftUI stops short. Built as a Swift
+Package, so there's no Xcode project to open — `swift run` and go.
 
 ## Features
 
@@ -33,6 +35,27 @@ short. Built as a Swift Package, so there's no Xcode project to open.
 | ![Nous](images/theme-nous.png) | ![Midnight](images/theme-midnight.png) |
 | ![Ember](images/theme-ember.png) | ![Cyberpunk](images/theme-cyberpunk.png) |
 | ![Mono](images/theme-mono.png) | ![Slate (light)](images/theme-slate-light.png) |
+
+## Settings
+
+Open settings from the titlebar cog. It's a native, fully themed modal — a dim
+backdrop, a sectioned left nav, and a custom thin scrollbar — not a stock
+`Settings` scene, so it recolors with the rest of the app and is easy to extend:
+add a case to `SettingsSection` and a matching content view.
+
+The **Appearance** section drives the whole look:
+
+- **Light / Dark / System** — a segmented mode control layered on top of the theme.
+- **Theme picker** — a searchable grid where every theme is a live mini-mockup
+  card; the selected one carries an accent border.
+- **Card Opacity** and **Card Blur** — sliders that tune the glass card and its
+  frosted backdrop in real time.
+
+Every choice persists to `UserDefaults` and is restored on the next launch.
+
+| Dark | Light |
+|---|---|
+| ![Settings — Appearance in the Midnight dark theme](images/settings-dark.png) | ![Settings — Appearance in the Slate light theme](images/settings-light.png) |
 
 ## Install
 
@@ -102,6 +125,23 @@ the app with no manual refresh. Values persist via `UserDefaults` (keys in `Pref
 SwiftUI can't set window-level transparency or appearance directly, so
 [WindowConfigurator](Sources/LiquidGlassDemo/WindowConfigurator.swift) bridges to the
 `NSWindow`.
+
+## Make it your own
+
+Starting a new app from this template:
+
+- **Rename** the executable and package in [Package.swift](Package.swift), then
+  update the product name in `app.yml` / the release scripts.
+- **Retheme** by editing the two palette tables (`ThemeStore.palettes` and
+  `ThemeSwatch.all`) — keep them in sync; they share `ThemeID`.
+- **Retoken** sizes, radii, fonts, and defaults keys in
+  [DesignSystem.swift](Sources/LiquidGlassDemo/DesignSystem.swift) instead of
+  inlining values.
+- **Extend settings** by adding a `SettingsSection` case and its content view in
+  [SettingsModal.swift](Sources/LiquidGlassDemo/SettingsModal.swift).
+- **Swap the content** — replace the demo glass card in
+  [ContentView.swift](Sources/LiquidGlassDemo/ContentView.swift) with your own
+  main view; the shell, theming, and settings stay.
 
 ## License
 

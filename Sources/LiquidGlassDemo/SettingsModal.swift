@@ -78,6 +78,7 @@ struct SettingsModal: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .focusEffectDisabled()
         .pointerStyle(.link)
     }
 
