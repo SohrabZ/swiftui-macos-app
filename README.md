@@ -60,9 +60,9 @@ To quit, use ⌘Q — closing the window keeps the app running (standard macOS b
 ## Testing & verifying
 
 ```bash
-swift test                # swift-testing suites (hover, mesh, opacity, theme, wiring)
-./verify.sh               # build → test → render a PNG snapshot → report
-./verify.sh --no-visual   # build + test only
+swift test                     # swift-testing suites (hover, mesh, opacity, theme, wiring)
+scripts/verify.sh              # build → test → render a PNG snapshot → report
+scripts/verify.sh --no-visual  # build + test only
 ```
 
 `verify.sh` renders a snapshot in-process with `ImageRenderer` — no window and no

@@ -33,7 +33,6 @@ Icon?
 *.swp
 *~
 
-# Generated verification artifacts — screenshots/appicon are kept for the README;
-# ignore the transient logs and the non-deterministic live screen capture.
-verify-artifacts/*.log
-verify-artifacts/screenshot-live.png
+# Generated verification output from scripts/verify.sh (snapshots, logs). The
+# curated README assets live in images/ instead, so none of this is committed.
+verify-artifacts/

@@ -5,7 +5,7 @@
 #   build  ->  test  ->  render snapshot  ->  report
 #
 # Exits non-zero if any stage fails, so it works as a gate in an agentic loop:
-# "make a change, run ./verify.sh, inspect the snapshot, repeat". The snapshot is
+# "make a change, run scripts/verify.sh, inspect the snapshot, repeat". The snapshot is
 # the visual-confirmation artifact — an agent (or you) opens it to confirm the
 # glass card actually rendered, which a green build/test can't prove on its own.
 #
@@ -13,14 +13,14 @@
 # window, no Screen Recording permission, deterministic — ideal for CI.
 #
 # Usage:
-#   ./verify.sh                 # build + test + snapshot (default)
-#   ./verify.sh --no-visual     # build + test only
-#   ./verify.sh --live          # also grab a live window screenshot (needs
+#   scripts/verify.sh                 # build + test + snapshot (default)
+#   scripts/verify.sh --no-visual     # build + test only
+#   scripts/verify.sh --live          # also grab a live window screenshot (needs
 #                               #   Screen Recording permission; pixel-accurate,
 #                               #   captures the real material blur + toggle)
 #
 set -euo pipefail
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 VISUAL=1
 LIVE=0
@@ -79,4 +79,4 @@ printf '\n\033[1;32mPASS: build + tests green; snapshot rendered.\033[0m\n'
 echo "  Snapshot: $SHOT"
 echo
 echo "Next (agentic loop): inspect $SHOT to confirm the glass card rendered,"
-echo "then make a change and re-run ./verify.sh."
+echo "then make a change and re-run scripts/verify.sh."

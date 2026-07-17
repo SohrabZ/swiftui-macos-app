@@ -9,8 +9,8 @@
 
 ## Bash commands
 
-- `./verify.sh` — build + test + render a PNG snapshot (the visual-confirmation artifact). Run after changes.
-- `./verify.sh --no-visual` — build + test only. `swift test` runs the tests alone.
+- `scripts/verify.sh` — build + test + render a PNG snapshot (the visual-confirmation artifact). Run after changes.
+- `scripts/verify.sh --no-visual` — build + test only. `swift test` runs the tests alone.
 - `swift run LiquidGlassDemo` (or `.build/debug/LiquidGlassDemo`) launches the real window. Kill any running instance first: `pkill -f LiquidGlassDemo || true`.
 - CLI render paths (no window): `--snapshot <path> [--size WxH]` writes a PNG; `--icon <path>` writes the app icon.
 - Snapshots render in-process via `ImageRenderer` (no window, no permissions), so `ContentView` must stay renderable without a live window.
