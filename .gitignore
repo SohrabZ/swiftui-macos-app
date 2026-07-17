@@ -1,0 +1,10 @@
+# Swift Package Manager
+.build/
+*.xcodeproj
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Generated logs (screenshots/appicon are kept for the README)
+verify-artifacts/*.log
