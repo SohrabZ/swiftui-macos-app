@@ -41,6 +41,12 @@
 - `NSWindow` tweaks go through `WindowConfigurator` (an `NSViewRepresentable` in the root `.background`); pass observed state as its `version` so it re-runs on change.
 - Titlebar buttons are SwiftUI hosted via `HeaderAccessoryController`; inject `ThemeStore` explicitly into each `NSHostingView` (it can't read the SwiftUI environment).
 
+## Distribution
+
+- Ships as a signed, notarized DMG with Sparkle auto-updates (direct download, not the App Store). Full pipeline and setup: `RELEASE.md`.
+- `scripts/build_app.sh` packages `dist/LiquidGlassDemo.app`; `scripts/release.sh` builds → notarizes → updates `appcast.xml` → publishes the GitHub release. Config lives in `app.yml` (public values only — no secrets).
+- Sparkle is guarded in `Updater.swift`: it only starts inside a bundle with a real `SUFeedURL`/`SUPublicEDKey`, so `swift run` and the CLI render paths never touch it. Don't remove that guard.
+
 ## Guardrails
 
 - Keep the two theme tables (`ThemeStore.palettes` and `ThemeSwatch.all`) in sync — they share `ThemeID`.
