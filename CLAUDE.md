@@ -17,11 +17,18 @@
 
 ## Code style
 
+- Indent with 4 spaces.
 - Use design tokens, not magic numbers: sizes, radii, fonts, and keys come from `DesignSystem.swift` (`Layout`, `Radius`, `Typography`, `Prefs`). Add a token rather than inlining a value.
 - Read colors from the theme (`@Environment(ThemeStore.self)`) or `Color(lightHex:darkHex:)`; never hardcode hex in a view.
 - Stroke borders with the `.themedBorder(_:)` modifier, not a raw `.overlay(RoundedRectangle…)`.
-- Keep pure, testable logic out of views (`GlassHover`, `OpacityControl`, `MeshBackdrop`) and add a unit test in `Tests/` for new logic.
-- Keep comments accurate: update or delete them when the code they describe changes.
+- Keep pure, testable logic out of views (`GlassHover`, `OpacityControl`, `MeshBackdrop`).
+- Don't over-comment. Skip comments that restate the code; add one only to explain the non-obvious *why*, and keep it accurate — update or delete it when the code changes.
+- Document `public`/`open` declarations with a 1–3 sentence summary plus any parameters, return value, and thrown errors. Keep private declarations to a one-line summary when they need one at all.
+
+## Tests
+
+- One `@Suite` per subject, in `Tests/LiquidGlassDemoTests/<Subject>Tests.swift`. Use swift-testing (`@Test` + `#expect`), not XCTest.
+- Add coverage for new pure logic. Mark suites/tests that touch `@MainActor` types (`ThemeStore`, `ContentView`) with `@MainActor`.
 
 ## State
 
@@ -33,6 +40,12 @@
 
 - `NSWindow` tweaks go through `WindowConfigurator` (an `NSViewRepresentable` in the root `.background`); pass observed state as its `version` so it re-runs on change.
 - Titlebar buttons are SwiftUI hosted via `HeaderAccessoryController`; inject `ThemeStore` explicitly into each `NSHostingView` (it can't read the SwiftUI environment).
+
+## Distribution
+
+- Ships as a signed, notarized DMG with Sparkle auto-updates (direct download, not the App Store). Full pipeline and setup: `RELEASE.md`.
+- `scripts/build_app.sh` packages `dist/LiquidGlassDemo.app`; `scripts/release.sh` builds → notarizes → updates `appcast.xml` → publishes the GitHub release. Config lives in `app.yml` (public values only — no secrets).
+- Sparkle is guarded in `Updater.swift`: it only starts inside a bundle with a real `SUFeedURL`/`SUPublicEDKey`, so `swift run` and the CLI render paths never touch it. Don't remove that guard.
 
 ## Guardrails
 
