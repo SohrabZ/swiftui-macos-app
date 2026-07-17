@@ -17,11 +17,18 @@
 
 ## Code style
 
+- Indent with 4 spaces.
 - Use design tokens, not magic numbers: sizes, radii, fonts, and keys come from `DesignSystem.swift` (`Layout`, `Radius`, `Typography`, `Prefs`). Add a token rather than inlining a value.
 - Read colors from the theme (`@Environment(ThemeStore.self)`) or `Color(lightHex:darkHex:)`; never hardcode hex in a view.
 - Stroke borders with the `.themedBorder(_:)` modifier, not a raw `.overlay(RoundedRectangle…)`.
-- Keep pure, testable logic out of views (`GlassHover`, `OpacityControl`, `MeshBackdrop`) and add a unit test in `Tests/` for new logic.
-- Keep comments accurate: update or delete them when the code they describe changes.
+- Keep pure, testable logic out of views (`GlassHover`, `OpacityControl`, `MeshBackdrop`).
+- Don't over-comment. Skip comments that restate the code; add one only to explain the non-obvious *why*, and keep it accurate — update or delete it when the code changes.
+- Document `public`/`open` declarations with a 1–3 sentence summary plus any parameters, return value, and thrown errors. Keep private declarations to a one-line summary when they need one at all.
+
+## Tests
+
+- One `@Suite` per subject, in `Tests/LiquidGlassDemoTests/<Subject>Tests.swift`. Use swift-testing (`@Test` + `#expect`), not XCTest.
+- Add coverage for new pure logic. Mark suites/tests that touch `@MainActor` types (`ThemeStore`, `ContentView`) with `@MainActor`.
 
 ## State
 
