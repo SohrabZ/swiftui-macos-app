@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sparkle appcast (update feed) for LiquidGlassDemo.
+
+  This file starts empty. `scripts/release.sh` prepends a new <item> for each
+  release: version, notes, minimum OS, and an <enclosure> pointing at the signed
+  DMG on GitHub Releases with its Sparkle EdDSA signature. Do not hand-edit the
+  signatures — let the release script generate them.
+-->
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>LiquidGlassDemo Changelog</title>
+    <description>Most recent updates to LiquidGlassDemo.</description>
+    <language>en</language>
+  </channel>
+</rss>

@@ -1,0 +1,32 @@
+# Release configuration for LiquidGlassDemo (direct-download distribution).
+#
+# Values marked TODO must be filled in before the first signed release — see
+# RELEASE.md. Nothing here is secret (no private keys / passwords); those live in
+# your keychain and the notarytool credential profile.
+
+app_name: "LiquidGlassDemo"
+executable: "LiquidGlassDemo"                 # SwiftPM product name
+bundle_identifier: "com.sohrabz.LiquidGlassDemo"   # TODO: your reverse-DNS bundle id
+category: "public.app-category.developer-tools"
+minimum_system_version: "15.0"
+
+github_owner: "SohrabZ"
+github_repo: "swiftui-macos-app"
+
+# The Sparkle appcast the app polls for updates. Defaults to the appcast.xml
+# committed here, served raw from the default branch. (GitHub Pages or your own
+# site also work — just keep this URL and Info.plist's SUFeedURL in sync.)
+feed_url: "https://raw.githubusercontent.com/SohrabZ/swiftui-macos-app/main/appcast.xml"
+
+# Base URL that release DMGs are downloaded from (GitHub Releases by default).
+download_base_url: "https://github.com/SohrabZ/swiftui-macos-app/releases/download"
+
+# --- Signing & notarization (TODO — see RELEASE.md; do NOT commit secrets) ---
+# Developer ID Application identity, as shown by `security find-identity -v -p codesigning`.
+developer_id_application: "Developer ID Application: YOUR NAME (TEAMID)"   # TODO
+apple_team_id: "TEAMID"                                                    # TODO
+# Keychain profile created via: xcrun notarytool store-credentials
+notarytool_keychain_profile: "LiquidGlassDemo Notary"                      # TODO
+# Base64 Ed25519 public key printed by Sparkle's `generate_keys` (private key
+# stays in your keychain). Injected into the app's Info.plist as SUPublicEDKey.
+sparkle_public_ed_key: "TODO_SPARKLE_ED_PUBLIC_KEY"                          # TODO
