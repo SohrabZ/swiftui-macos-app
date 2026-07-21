@@ -146,12 +146,11 @@ icon, version, links — replacing the stock AppKit panel.
 
 ## Install
 
-Download the latest **`LiquidGlassDemo.dmg`** from the
-[Releases](https://github.com/SohrabZ/swiftui-macos-app/releases) page, open it, and
-drag the app to Applications. It's signed, notarized, and updates itself via
-[Sparkle](https://sparkle-project.org) — new versions arrive automatically, or check
-manually from **LiquidGlassDemo ▸ Check for Updates…**. Maintainers: see
-[RELEASE.md](RELEASE.md) for cutting a release.
+A signed, notarized **`LiquidGlassDemo.dmg`** (with
+[Sparkle](https://sparkle-project.org) auto-updates) is coming soon to the
+[Releases](https://github.com/SohrabZ/swiftui-macos-app/releases) page — watch
+the repo to get it when it lands. Until then, build from source below; it takes
+two minutes. Maintainers: see [RELEASE.md](RELEASE.md) for cutting a release.
 
 ## Requirements
 
