@@ -1,14 +1,12 @@
 import SwiftUI
 
-/// Text/icon content shown on the glass card. Extracted from the view so the
-/// content is data that can be asserted on in tests.
+/// Text content shown on the glass card, beneath the app icon. Extracted from
+/// the view so the content is data that can be asserted on in tests.
 struct GlassCardModel: Equatable {
-    var iconName: String
     var title: String
     var subtitle: String
 
     static let demo = GlassCardModel(
-        iconName: "drop.fill",
         title: "Liquid Glass",
         subtitle: "Real Liquid Glass over a live themed mesh — tint, frost, and light respond as you tune them."
     )

@@ -69,7 +69,13 @@ final class UIState {
     var hasCompletedOnboarding = false {
         didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: Prefs.hasCompletedOnboarding) }
     }
-    var showSettings = false
+    var showSettings = false {
+        // Closing returns the modal to General; deep links like the hero card's
+        // Customize button set a section first, then show.
+        didSet { if !showSettings { settingsSection = .general } }
+    }
+    /// The settings page the modal opens on (transient; reset to General on close).
+    var settingsSection: SettingsSection = .general
     /// First-run welcome panel visibility, set at launch from the persisted flag.
     var showOnboarding = false
 

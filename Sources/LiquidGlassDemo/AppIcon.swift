@@ -1,34 +1,35 @@
 import SwiftUI
 import AppKit
 
-/// The app icon in the macOS 26 "Liquid Glass" style: a glass squircle plate lit
-/// from above, with a translucent water drop floating over it — rim light on the
-/// plate and the drop, a specular highlight, the plate color refracting up
-/// through the drop's bottom, and a soft cast shadow for depth.
+/// The app icon in the macOS 26 "Liquid Glass" style: a lavender squircle plate
+/// holding a large frosted-glass orb with the water drop suspended inside it —
+/// specular light at the orb's top, refraction cooling its bottom, and a soft
+/// cast shadow grounding it on the plate.
 ///
 /// Rendered in-process with `ImageRenderer` (no asset catalog), and used as the
-/// Dock icon (a SwiftPM executable has no bundled `.icns`). Everything is drawn
-/// with shapes/gradients — `DropShape` is a path (not the SF Symbol) so it can
-/// be filled, stroked, and masked per layer.
+/// Dock icon (a SwiftPM executable has no bundled `.icns`), the About and
+/// onboarding panels, and the hero card's logo. Everything is drawn with
+/// shapes/gradients — `DropShape` is a path (not the SF Symbol) so it can be
+/// filled, stroked, and masked per layer.
 struct AppIconView: View {
     var body: some View {
         ZStack {
             basePlate
-            dropGlyph
+            glassOrb
         }
         .frame(width: 1024, height: 1024)
     }
 
-    /// The squircle plate: deep indigo glass, brighter toward the top light.
+    /// The squircle plate: lavender glass, brighter toward the top light.
     private var basePlate: some View {
         RoundedRectangle(cornerRadius: 228, style: .continuous)
             .fill(
                 LinearGradient(
                     colors: [
-                        Color(hex: 0x6E8AEE),
-                        Color(hex: 0x4161D8),
-                        Color(hex: 0x24348F),
-                        Color(hex: 0x0D1233)
+                        Color(hex: 0xC0B4EC),
+                        Color(hex: 0x9484D8),
+                        Color(hex: 0x6F5CBD),
+                        Color(hex: 0x453A8E)
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -39,7 +40,7 @@ struct AppIconView: View {
                 RoundedRectangle(cornerRadius: 228, style: .continuous)
                     .fill(
                         EllipticalGradient(
-                            colors: [.white.opacity(0.30), .clear],
+                            colors: [.white.opacity(0.35), .clear],
                             center: .top,
                             startRadiusFraction: 0,
                             endRadiusFraction: 0.85
@@ -50,7 +51,7 @@ struct AppIconView: View {
             .overlay {
                 RoundedRectangle(cornerRadius: 228, style: .continuous)
                     .fill(
-                        LinearGradient(colors: [.clear, .black.opacity(0.35)],
+                        LinearGradient(colors: [.clear, .black.opacity(0.28)],
                                        startPoint: .center, endPoint: .bottom)
                     )
             }
@@ -58,7 +59,7 @@ struct AppIconView: View {
             .overlay {
                 RoundedRectangle(cornerRadius: 224, style: .continuous)
                     .strokeBorder(
-                        LinearGradient(colors: [.white.opacity(0.85), .white.opacity(0.12), .clear],
+                        LinearGradient(colors: [.white.opacity(0.8), .white.opacity(0.12), .clear],
                                        startPoint: .top, endPoint: .center),
                         lineWidth: 5
                     )
@@ -67,75 +68,80 @@ struct AppIconView: View {
             }
     }
 
-    /// The water drop as a translucent glass element floating over the plate.
-    private var dropGlyph: some View {
+    /// The frosted glass orb with the drop suspended inside.
+    private var glassOrb: some View {
         ZStack {
-            // Cool glow on the plate behind the drop.
+            // Cast shadow grounding the orb on the plate.
             Circle()
-                .fill(RadialGradient(colors: [Color(hex: 0xBFD4FF).opacity(0.35), .clear],
-                                     center: .center, startRadius: 20, endRadius: 330))
+                .fill(.black.opacity(0.28))
+                .blur(radius: 44)
+                .offset(y: 42)
 
-            // Cast shadow grounding the drop on the plate.
-            DropShape()
-                .fill(.black.opacity(0.4))
-                .blur(radius: 26)
-                .offset(y: 30)
-
-            // Glass body: opaque frost — bright at the top, cooling to pale blue
-            // at the belly so the drop separates from the plate.
-            DropShape()
+            // Frosted body, lit from the upper left.
+            Circle()
                 .fill(
-                    LinearGradient(colors: [.white,
-                                            Color(hex: 0xE4ECFF),
-                                            Color(hex: 0xAFC3FF)],
-                                   startPoint: .top, endPoint: .bottom)
+                    RadialGradient(
+                        colors: [.white, Color(hex: 0xF0F3FF), Color(hex: 0xCDD6F6)],
+                        center: UnitPoint(x: 0.32, y: 0.24),
+                        startRadius: 60,
+                        endRadius: 560
+                    )
                 )
-            // Refraction: a thin indigo band hugging the belly's bottom edge.
-            DropShape()
+            // Refraction: the plate's violet pooling in the orb's bottom.
+            Circle()
                 .fill(
                     LinearGradient(stops: [
-                        .init(color: .clear, location: 0.6),
-                        .init(color: Color(hex: 0x4161D8).opacity(0.55), location: 1.0)
+                        .init(color: .clear, location: 0.55),
+                        .init(color: Color(hex: 0x6F5CBD).opacity(0.35), location: 1.0)
                     ], startPoint: .top, endPoint: .bottom)
                 )
-            // Lit from above: a soft white bloom inside the drop's top.
-            Ellipse()
-                .fill(.white.opacity(0.3))
-                .frame(width: 280, height: 170)
-                .blur(radius: 30)
-                .offset(y: -140)
-                .mask(DropShape())
-            // Edge definition: bright rim up top, indigo refraction rim below.
+
+            // The drop, suspended in the glass — large enough to read as a drop
+            // even at Dock size.
             DropShape()
-                .stroke(
-                    LinearGradient(colors: [.white.opacity(0.9), Color(hex: 0x24348F).opacity(0.5)],
+                .fill(
+                    LinearGradient(colors: [Color(hex: 0x6A58BC), Color(hex: 0x3D2C85)],
+                                   startPoint: .top, endPoint: .bottom)
+                )
+                .frame(width: 400, height: 465)
+            // A glass wash over the glyph's top, so it reads inside the orb.
+            DropShape()
+                .fill(
+                    LinearGradient(colors: [.white.opacity(0.35), .clear],
+                                   startPoint: .top, endPoint: .center)
+                )
+                .frame(width: 400, height: 465)
+
+            // Specular highlights on the orb's upper left.
+            Ellipse()
+                .fill(.white.opacity(0.95))
+                .frame(width: 210, height: 130)
+                .rotationEffect(.degrees(-24))
+                .blur(radius: 16)
+                .offset(x: -155, y: -205)
+            Ellipse()
+                .fill(.white)
+                .frame(width: 64, height: 40)
+                .rotationEffect(.degrees(-24))
+                .blur(radius: 8)
+                .offset(x: -215, y: -245)
+
+            // Rim: bright edge up top, violet edge below.
+            Circle()
+                .strokeBorder(
+                    LinearGradient(colors: [.white.opacity(0.9), Color(hex: 0x6F5CBD).opacity(0.4)],
                                    startPoint: .top, endPoint: .bottom),
                     lineWidth: 4
                 )
                 .blur(radius: 1)
-            // Specular highlights, confined to the drop.
-            ZStack {
-                Ellipse()
-                    .fill(.white)
-                    .frame(width: 90, height: 140)
-                    .rotationEffect(.degrees(-18))
-                    .blur(radius: 6)
-                    .offset(x: -105, y: -45)
-                Ellipse()
-                    .fill(.white.opacity(0.7))
-                    .frame(width: 26, height: 44)
-                    .rotationEffect(.degrees(-15))
-                    .blur(radius: 5)
-                    .offset(x: -60, y: 75)
-            }
-            .mask(DropShape())
         }
-        .frame(width: 500, height: 580)
+        .frame(width: 700, height: 700)
+        .offset(y: 8)
     }
 }
 
 /// A teardrop: softly pointed top flowing into a full round bottom — the sides
-/// meet the bottom circle at tangent points, which is what keeps the silhouette
+/// meet the belly circle at tangent points, which is what keeps the silhouette
 /// a drop rather than a spire. Drawn as a path so the icon can stroke and mask
 /// it per layer (an SF Symbol exposes no outline).
 struct DropShape: Shape {
@@ -170,6 +176,13 @@ enum AppIcon {
         renderer.scale = 1
         return renderer.nsImage
     }
+
+    /// The icon at menu-bar size, rendered once for the tray label.
+    static let tray: NSImage? = {
+        guard let img = make() else { return nil }
+        img.size = NSSize(width: 19, height: 19)
+        return img
+    }()
 
     /// Writes the icon to a PNG (used to preview/verify it).
     static func writePNG(to path: String) {

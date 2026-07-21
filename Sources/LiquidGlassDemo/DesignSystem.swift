@@ -51,7 +51,6 @@ enum Typography {
     static let badge = Font.system(size: 11, weight: .semibold)   // hero card theme badge
 
     // Icon sizes (applied to SF Symbols), matched to the labels they sit beside.
-    static let iconHero = Font.system(size: 34, weight: .medium)  // hero card disc glyph
     static let iconLarge = Font.system(size: 14)
     static let icon = Font.system(size: 13)
     static let iconSmall = Font.system(size: 12)

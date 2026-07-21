@@ -86,7 +86,12 @@ struct LiquidGlassDemoApp: App {
             TrayMenu(updater: updater)
                 .environment(theme)
         } label: {
-            Image(systemName: "drop.fill")
+            // The app icon at menu-bar size (color); SF Symbol fallback.
+            if let tray = AppIcon.tray {
+                Image(nsImage: tray)
+            } else {
+                Image(systemName: "drop.fill")
+            }
         }
     }
 }

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiquidGlassDemo — SwiftUI macOS App Boilerplate</title>
+<meta name="description" content="A production-grade macOS app boilerplate in pure SwiftUI: Liquid Glass shell, six themes, settings, onboarding, localization, Sparkle updates — wired and tested.">
+<meta property="og:title" content="LiquidGlassDemo — SwiftUI macOS App Boilerplate">
+<meta property="og:description" content="Clone it, retheme it, ship it. A themed Liquid Glass window shell with everything a real macOS app needs, already wired.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sohrabz.github.io/swiftui-macos-app/">
+<meta property="og:image" content="https://sohrabz.github.io/swiftui-macos-app/assets/social-preview.png">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<style>
+  :root {
+    --bg: #0B0D12;
+    --panel: rgba(255,255,255,0.055);
+    --panel-strong: rgba(255,255,255,0.09);
+    --border: rgba(255,255,255,0.10);
+    --text: #DDE1E7;
+    --text-2: #868D98;
+    --accent: #5E7CE0;
+    --accent-soft: rgba(94,124,224,0.16);
+    --shadow: 0 30px 60px -18px rgba(0,0,0,0.55);
+    --radius: 16px;
+  }
+  [data-theme="light"] {
+    --bg: #F5F6F8;
+    --panel: rgba(255,255,255,0.72);
+    --panel-strong: rgba(255,255,255,0.9);
+    --border: rgba(16,24,40,0.10);
+    --text: #1F2328;
+    --text-2: #6A737D;
+    --accent: #4169E1;
+    --accent-soft: rgba(65,105,225,0.12);
+    --shadow: 0 30px 60px -24px rgba(31,35,40,0.25);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* Mesh backdrop echoing the app's themed mesh + grid */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: -2;
+    background:
+      radial-gradient(42% 38% at 18% 8%, rgba(94,124,224,0.20), transparent 70%),
+      radial-gradient(38% 34% at 85% 18%, rgba(109,95,214,0.16), transparent 70%),
+      radial-gradient(45% 40% at 55% 95%, rgba(65,105,225,0.12), transparent 70%);
+    animation: drift 36s ease-in-out infinite alternate;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: -1;
+    background-image:
+      repeating-linear-gradient(0deg, var(--border) 0 1px, transparent 1px 56px),
+      repeating-linear-gradient(90deg, var(--border) 0 1px, transparent 1px 56px);
+    opacity: 0.28;
+    mask-image: radial-gradient(80% 60% at 50% 0%, black, transparent);
+  }
+  @keyframes drift {
+    from { transform: translate3d(0,0,0) scale(1); }
+    to   { transform: translate3d(0,-24px,0) scale(1.04); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body::before { animation: none; }
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 96px 0 24px; }
+  h1, h2, h3 { letter-spacing: -0.02em; line-height: 1.12; }
+  h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; margin-bottom: 12px; }
+  .eyebrow {
+    display: inline-block; font-size: 12.5px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent);
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px;
+    background: var(--accent-soft); margin-bottom: 18px;
+  }
+  .sub { color: var(--text-2); font-size: 17px; max-width: 640px; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 12px; z-index: 50;
+    margin: 12px auto 0; max-width: 1120px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 20px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  }
+  nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; text-decoration: none; color: var(--text); }
+  nav .brand img { width: 26px; height: 26px; border-radius: 7px; }
+  nav .links { display: flex; gap: 18px; margin-left: auto; align-items: center; }
+  nav .links a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; }
+  nav .links a:hover { color: var(--text); }
+  nav .links a.btn { color: #fff; }
+  @media (max-width: 720px) { nav .links a:not(.btn):not(.toggle) { display: none; } }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 10px; font-size: 14.5px; font-weight: 600;
+    text-decoration: none; border: 1px solid var(--border);
+    background: var(--panel); color: var(--text);
+    transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-2px); background: var(--panel-strong); }
+  .btn.primary { background: var(--accent); border-color: transparent; color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.toggle { padding: 8px 12px; font-size: 15px; line-height: 1; }
+
+  /* Hero */
+  .hero { padding: 84px 0 32px; text-align: center; }
+  .hero h1 { font-size: clamp(38px, 6.4vw, 68px); font-weight: 800; margin: 0 auto 18px; max-width: 820px; }
+  .hero h1 .grad {
+    background: linear-gradient(100deg, var(--accent), #9B8CF0 55%, var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero .sub { margin: 0 auto 30px; font-size: 18px; }
+  .hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-frame {
+    margin: 56px auto 0; max-width: 960px; text-align: left;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+    backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .hero-frame .bar { display: flex; gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+  .hero-frame .bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .hero-frame .bar i:nth-child(1) { background: #FF5F57; }
+  .hero-frame .bar i:nth-child(2) { background: #FEBC2E; }
+  .hero-frame .bar i:nth-child(3) { background: #28C840; }
+  .hero-frame img { display: block; width: 100%; }
+
+  /* Features */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 36px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: transform .18s ease, border-color .18s ease;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .card .icon {
+    width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); margin-bottom: 12px;
+  }
+  .card h3 { font-size: 15.5px; font-weight: 650; margin-bottom: 5px; }
+  .card p { font-size: 13.5px; color: var(--text-2); line-height: 1.55; }
+
+  /* Theme gallery */
+  .gallery { margin-top: 32px; }
+  .gallery-controls {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 600;
+    background: var(--panel); border: 1px solid var(--border); color: var(--text-2);
+    cursor: pointer; transition: all .15s ease;
+  }
+  .pill .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); }
+  .pill:hover { color: var(--text); }
+  .pill.active { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--text-2); font: inherit; font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .seg button.active { background: var(--panel-strong); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .gallery-frame {
+    position: relative; border-radius: 20px; overflow: hidden;
+    border: 1px solid var(--border); box-shadow: var(--shadow); background: var(--panel);
+  }
+  .gallery-frame img { display: block; width: 100%; transition: opacity .25s ease; }
+  .gallery-frame img.fade { opacity: 0; }
+  .gallery-caption { margin-top: 12px; font-size: 13.5px; color: var(--text-2); text-align: center; }
+
+  /* Screenshots */
+  .shots { display: grid; grid-template-columns: 2fr 1.2fr; gap: 14px; margin-top: 36px; }
+  .shots .card { padding: 0; overflow: hidden; }
+  .shots .card img { display: block; width: 100%; }
+  .shots .meta { padding: 14px 18px; border-top: 1px solid var(--border); }
+  .shots .meta h3 { font-size: 14.5px; }
+  .shots .meta p { font-size: 13px; color: var(--text-2); }
+  .shots .right { display: grid; gap: 14px; }
+  @media (max-width: 860px) { .shots { grid-template-columns: 1fr; } }
+
+  /* Install */
+  .install { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 36px; }
+  @media (max-width: 860px) { .install { grid-template-columns: 1fr; } }
+  .code {
+    position: relative; margin-top: 14px; background: rgba(0,0,0,0.35); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 44px 14px 16px; overflow-x: auto;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: #C9D1D9;
+  }
+  [data-theme="light"] .code { background: #0D1117; color: #C9D1D9; }
+  .code .copy {
+    position: absolute; top: 8px; right: 8px; border: 1px solid var(--border); border-radius: 7px;
+    background: var(--panel); color: var(--text-2); font-size: 11.5px; font-weight: 600;
+    padding: 4px 9px; cursor: pointer;
+  }
+  .code .copy:hover { color: var(--text); }
+  .steps { margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .steps .card p strong { color: var(--text); }
+
+  footer {
+    margin-top: 96px; padding: 32px 0 40px; border-top: 1px solid var(--border);
+    color: var(--text-2); font-size: 13.5px;
+  }
+  footer .wrap { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  footer a { color: var(--text-2); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .5s ease, transform .5s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="#top"><img src="assets/icon.png" alt="LiquidGlassDemo app icon">LiquidGlassDemo</a>
+  <div class="links">
+    <a href="#features">Features</a>
+    <a href="#themes">Themes</a>
+    <a href="#screenshots">Screenshots</a>
+    <a href="#install">Install</a>
+    <button class="btn toggle" id="modeToggle" aria-label="Toggle light/dark mode">◐</button>
+    <a class="btn primary" href="https://github.com/SohrabZ/swiftui-macos-app">GitHub</a>
+  </div>
+</nav>
+
+<header class="hero wrap" id="top">
+  <span class="eyebrow">SwiftUI macOS boilerplate</span>
+  <h1>Ship a native macOS app <span class="grad">this weekend</span>.</h1>
+  <p class="sub">A themed Liquid Glass window shell with everything a real app needs — settings, onboarding, themes, localization, accessibility, updates — already wired, already tested. No Xcode project: <code>swift run</code> and go.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/SohrabZ/swiftui-macos-app/releases/latest">Download latest DMG</a>
+    <a class="btn" href="https://github.com/SohrabZ/swiftui-macos-app">View on GitHub</a>
+  </div>
+  <div class="hero-frame reveal">
+    <div class="bar"><i></i><i></i><i></i></div>
+    <img src="assets/hero.jpg" alt="The LiquidGlassDemo window — a Liquid Glass card over a themed mesh backdrop" loading="lazy">
+  </div>
+</header>
+
+<section class="wrap" id="features">
+  <span class="eyebrow">Batteries included</span>
+  <h2>Everything you'd build anyway, done.</h2>
+  <p class="sub">Each piece is a small, idiomatic pattern you keep — not a framework you fight.</p>
+  <div class="grid">
+    <div class="card reveal"><div class="icon">◐</div><h3>Six adaptive themes</h3><p>Slate, Nous, Midnight, Ember, Mono, Cyberpunk — each with light and dark variants, recoloring the whole app live.</p></div>
+    <div class="card reveal"><div class="icon">☀︎</div><h3>Light / Dark / System</h3><p>An explicit appearance mode that resolves System to the live OS setting and reverts cleanly.</p></div>
+    <div class="card reveal"><div class="icon">▤</div><h3>Menu bar extra</h3><p>A system tray with open/focus, quick theme switching, update check, and quit — sharing state with the window.</p></div>
+    <div class="card reveal"><div class="icon">⌘</div><h3>Keyboard-first commands</h3><p>Real menus: ⌘, settings, ⌃⌘S sidebar, ⌥⌘I inspector, ⌘1–⌘6 themes — window state reaches them via @FocusedValue.</p></div>
+    <div class="card reveal"><div class="icon">⚙︎</div><h3>Sectioned settings</h3><p>A themed modal with General / Appearance / Accessibility pages. Add a row, or a whole section.</p></div>
+    <div class="card reveal"><div class="icon">✦</div><h3>First-run onboarding</h3><p>A localized welcome panel shown once — the "show once" routing pattern, ready for your content.</p></div>
+    <div class="card reveal"><div class="icon">⏻</div><h3>Launch at login</h3><p>SMAppService-backed toggle, safely guarded outside the packaged app — like Sparkle.</p></div>
+    <div class="card reveal"><div class="icon">↻</div><h3>Sparkle auto-updates</h3><p>Signed, notarized DMG releases that update themselves. The whole pipeline is scripted.</p></div>
+    <div class="card reveal"><div class="icon">ⓘ</div><h3>Accessibility built in</h3><p>Reduce Motion/Transparency and Increase Contrast honored, VoiceOver labels — plus in-app override toggles.</p></div>
+    <div class="card reveal"><div class="icon">◎</div><h3>Five languages</h3><p>English, German, French, Spanish, Portuguese — a working L10n scaffold, not a TODO comment.</p></div>
+    <div class="card reveal"><div class="icon">⧉</div><h3>Deep links</h3><p>liquidglassdemo://theme/ember switches themes from anywhere. The parser is pure and unit-tested.</p></div>
+    <div class="card reveal"><div class="icon">▸</div><h3>Diagnostics & logging</h3><p>os.Logger categories, a Copy Debug Info menu item, and one ErrorStore alert for everything.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="themes">
+  <span class="eyebrow">Live theming</span>
+  <h2>Pick a theme. Watch it recolor.</h2>
+  <p class="sub">Every theme ships a light and a dark variant — the mesh backdrop, chrome, and glass all follow.</p>
+  <div class="gallery reveal">
+    <div class="gallery-controls">
+      <div class="pills" id="themePills"></div>
+      <div class="seg" id="modeSeg">
+        <button data-mode="dark" class="active">Dark</button>
+        <button data-mode="light">Light</button>
+      </div>
+    </div>
+    <div class="gallery-frame"><img id="galleryImg" src="assets/theme-slate-dark.jpg" alt="Theme preview"></div>
+    <p class="gallery-caption" id="galleryCaption">Slate · Dark</p>
+  </div>
+</section>
+
+<section class="wrap" id="screenshots">
+  <span class="eyebrow">Around the app</span>
+  <h2>Real flows, not mockups.</h2>
+  <div class="shots">
+    <div class="card reveal">
+      <img src="assets/settings-dark.jpg" alt="Sectioned settings modal in the Midnight dark theme" loading="lazy">
+      <div class="meta"><h3>Sectioned settings</h3><p>General, Appearance, and Accessibility pages — a themed modal, not a stock Settings scene.</p></div>
+    </div>
+    <div class="right">
+      <div class="card reveal">
+        <img src="assets/onboarding.jpg" alt="First-run onboarding welcome panel" loading="lazy">
+        <div class="meta"><h3>First-run onboarding</h3><p>Shown once, in five languages.</p></div>
+      </div>
+      <div class="card reveal">
+        <img src="assets/about.jpg" alt="Themed About panel with the glass orb icon" loading="lazy">
+        <div class="meta"><h3>Themed About</h3><p>Icon, version, links — not the stock panel.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="install">
+  <span class="eyebrow">Get started</span>
+  <h2>Two minutes to a running app.</h2>
+  <div class="install">
+    <div class="card reveal">
+      <h3>Download the app</h3>
+      <p>Signed, notarized DMG from Releases. Updates itself via Sparkle.</p>
+      <p style="margin-top:14px"><a class="btn primary" href="https://github.com/SohrabZ/swiftui-macos-app/releases/latest">Download LiquidGlassDemo.dmg</a></p>
+    </div>
+    <div class="card reveal">
+      <h3>Build from source</h3>
+      <p>macOS 15+, Swift 6. No Xcode project — it's a SwiftPM package.</p>
+      <div class="code" id="cloneCode">git clone https://github.com/SohrabZ/swiftui-macos-app.git
+cd swiftui-macos-app
+swift run<button class="copy" data-target="cloneCode">Copy</button></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="card reveal"><p><strong>1 · Rename</strong></p><p>The package in Package.swift, plus app.yml, AppInfo, and AppLog.</p></div>
+    <div class="card reveal"><p><strong>2 · Retheme</strong></p><p>Edit the two palette tables — they share ThemeID and stay in sync.</p></div>
+    <div class="card reveal"><p><strong>3 · Retoken</strong></p><p>Sizes, radii, fonts, and keys live in DesignSystem.swift.</p></div>
+    <div class="card reveal"><p><strong>4 · Extend</strong></p><p>Add a settings section, a deep link, a string — the patterns are all there.</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>MIT © <span id="year"></span> SohrabZ · Built with SwiftUI and Liquid Glass</span>
+    <span>
+      <a href="https://github.com/SohrabZ/swiftui-macos-app">Repository</a> ·
+      <a href="https://github.com/SohrabZ/swiftui-macos-app/releases">Releases</a> ·
+      <a href="https://github.com/SohrabZ/swiftui-macos-app/issues">Issues</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  // Page mode (default dark, persisted)
+  const root = document.documentElement;
+  const saved = localStorage.getItem("lgd-mode");
+  if (saved) root.dataset.theme = saved;
+  document.getElementById("modeToggle").addEventListener("click", () => {
+    root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem("lgd-mode", root.dataset.theme);
+  });
+
+  // Theme gallery
+  const themes = [
+    { id: "slate",     name: "Slate",     dot: "#5E7CE0" },
+    { id: "nous",      name: "Nous",      dot: "#5B8DEF" },
+    { id: "midnight",  name: "Midnight",  dot: "#9385F0" },
+    { id: "ember",     name: "Ember",     dot: "#E0793F" },
+    { id: "mono",      name: "Mono",      dot: "#AAAAAA" },
+    { id: "cyberpunk", name: "Cyberpunk", dot: "#4CE44C" }
+  ];
+  let theme = "slate", mode = "dark";
+  const img = document.getElementById("galleryImg");
+  const caption = document.getElementById("galleryCaption");
+  const pills = document.getElementById("themePills");
+
+  function render() {
+    const t = themes.find(t => t.id === theme);
+    const src = `assets/theme-${theme}-${mode}.jpg`;
+    if (!img.src.endsWith(src)) {
+      img.classList.add("fade");
+      const swap = () => { img.src = src; img.alt = `${t.name} theme, ${mode} appearance`; img.onload = () => img.classList.remove("fade"); };
+      setTimeout(swap, 120);
+    }
+    caption.textContent = `${t.name} · ${mode === "dark" ? "Dark" : "Light"}`;
+    pills.querySelectorAll(".pill").forEach(p => p.classList.toggle("active", p.dataset.theme === theme));
+    document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("active", b.dataset.mode === mode));
+  }
+  themes.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "pill"; b.dataset.theme = t.id;
+    b.innerHTML = `<span class="dot" style="background:${t.dot}"></span>${t.name}`;
+    b.addEventListener("click", () => { theme = t.id; render(); });
+    pills.appendChild(b);
+  });
+  document.querySelectorAll("#modeSeg button").forEach(b =>
+    b.addEventListener("click", () => { mode = b.dataset.mode; render(); }));
+  render();
+
+  // Scroll reveal
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+  // Copy buttons
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", async () => {
+    const el = document.getElementById(btn.dataset.target);
+    await navigator.clipboard.writeText(el.innerText.replace(/Copy$/, "").trim());
+    btn.textContent = "Copied";
+    setTimeout(() => btn.textContent = "Copy", 1400);
+  }));
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

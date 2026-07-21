@@ -46,7 +46,6 @@ struct SettingsModal: View {
     // Owned here (recreated on each open) so the toggle always reflects the
     // real SMAppService status, including changes made in System Settings.
     @State private var launchAtLogin = LaunchAtLogin()
-    @State private var section: SettingsSection = .general
 
     var body: some View {
         ZStack {
@@ -98,19 +97,19 @@ struct SettingsModal: View {
 
     private func navRow(_ item: SettingsSection) -> some View {
         Button {
-            section = item
+            ui.settingsSection = item
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: item.icon).font(Typography.icon).frame(width: 18)
                 Text(item.title).font(Typography.body)
                 Spacer()
             }
-            .foregroundStyle(section == item ? theme.textPrimary : theme.textSecondary)
+            .foregroundStyle(ui.settingsSection == item ? theme.textPrimary : theme.textSecondary)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(
                 RoundedRectangle(cornerRadius: Radius.row)
-                    .fill(section == item ? theme.selectionFill : .clear)
+                    .fill(ui.settingsSection == item ? theme.selectionFill : .clear)
             )
             .contentShape(Rectangle())
         }
@@ -118,7 +117,7 @@ struct SettingsModal: View {
         .focusEffectDisabled()
         .pointerStyle(.link)
         .accessibilityLabel(item.title)
-        .accessibilityAddTraits(section == item ? .isSelected : [])
+        .accessibilityAddTraits(ui.settingsSection == item ? .isSelected : [])
     }
 
     // MARK: Content
@@ -127,15 +126,15 @@ struct SettingsModal: View {
         ScrollableContent {
             VStack(alignment: .leading, spacing: 0) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(section.title).font(Typography.title).foregroundStyle(theme.textPrimary)
-                    Text(section.subtitle)
+                    Text(ui.settingsSection.title).font(Typography.title).foregroundStyle(theme.textPrimary)
+                    Text(ui.settingsSection.subtitle)
                         .font(Typography.caption)
                         .foregroundStyle(theme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(.bottom, 16)
 
-                switch section {
+                switch ui.settingsSection {
                 case .general: generalSection
                 case .appearance: appearanceSection
                 case .accessibility: accessibilitySection
