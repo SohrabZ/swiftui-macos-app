@@ -20,7 +20,12 @@ package (SwiftPM), so there's no Xcode project to open — `swift run` and go.
   optional right inspector panel. Toggles live on the traffic-light row as native
   titlebar accessories.
 - **Real Liquid Glass** — the hero card uses the native `glassEffect` on macOS 26
-  (tinted, interactive), with a tuned blur-mask fallback below it.
+  (clear, interactive — tint and frost painted beneath it, so the sliders always
+  respond), with a tuned blur-mask fallback below it.
+- **Menu bar extra** — a system tray menu (`MenuBarExtra`) with open/focus, quick
+  theme switching, update check, and quit. The theme store is shared with the
+  window, so a tray switch recolors it live. One window max (a single `Window`
+  scene, no New Window duplicates).
 - **Six themes** — Slate, Nous, Midnight, Ember, Mono, and Cyberpunk, each with
   light and dark variants. Pick a theme and the whole app recolors instantly —
   including the mesh backdrop behind the card.
@@ -155,7 +160,7 @@ BIN="$(swift build --show-bin-path)/LiquidGlassDemo"
 
 | Path | Purpose |
 |------|---------|
-| [LiquidGlassDemoApp.swift](Sources/LiquidGlassDemo/LiquidGlassDemoApp.swift) | `@main` entry; windowed app, `--snapshot`/`--icon` render modes, `AppDelegate` (Dock icon, activation, window lifecycle) |
+| [LiquidGlassDemoApp.swift](Sources/LiquidGlassDemo/LiquidGlassDemoApp.swift) | `@main` entry; single `Window` scene + `MenuBarExtra` tray, `--snapshot`/`--icon` render modes, `AppDelegate` (Dock icon, activation, window lifecycle) |
 | [ContentView.swift](Sources/LiquidGlassDemo/ContentView.swift) | Three-column shell, header, and window configuration |
 | [HeroCard.swift](Sources/LiquidGlassDemo/HeroCard.swift) | The glass hero card — native `glassEffect` on macOS 26, tinted fallback below |
 | [Sidebars.swift](Sources/LiquidGlassDemo/Sidebars.swift) | Translucent side columns: theme quick-switch list, inspector, resize dividers |

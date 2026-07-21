@@ -45,15 +45,22 @@ struct Main {
 struct LiquidGlassDemoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var updater = Updater()
+    // Owned here (not in ContentView) so the MenuBarExtra scene shares the same
+    // store — switching a theme from the tray recolors the window live.
+    @State private var theme = ThemeStore()
 
     var body: some Scene {
-        WindowGroup {
+        // Single-window scene (not WindowGroup): one instance ever, so there are
+        // no File ▸ New Window duplicates and `openWindow(id:)` from the tray
+        // always brings the same window to front.
+        Window("LiquidGlassDemo", id: "main") {
             ContentView()
                 // Room for the sidebars + a padded main column on all sides.
                 .frame(minWidth: 820, minHeight: 560)
                 // Empty title so macOS never flashes the executable name in the
                 // header on hover / when the window becomes key.
                 .navigationTitle("")
+                .environment(theme)
         }
         // Transparent, full-size titlebar so the SwiftUI header strip becomes the
         // header background (the default titlebar material otherwise shows through).
@@ -69,6 +76,46 @@ struct LiquidGlassDemoApp: App {
                     .disabled(!updater.canCheckForUpdates)
             }
         }
+
+        // System tray: open the window, quick theme switch, updates, quit.
+        MenuBarExtra {
+            TrayMenu(updater: updater)
+                .environment(theme)
+        } label: {
+            Image(systemName: "drop.fill")
+        }
+    }
+}
+
+/// The menu bar extra's dropdown: window access plus the actions worth reaching
+/// without opening the app — theme switching, updates, quit.
+private struct TrayMenu: View {
+    let updater: Updater
+
+    @Environment(ThemeStore.self) private var theme
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        @Bindable var theme = theme
+        Button("Open LiquidGlassDemo") {
+            // Single `Window` scene: this reopens it when closed, focuses it
+            // when visible — never a duplicate.
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        Divider()
+        // Picker renders as a "Theme ▸" submenu with a native checkmark on the
+        // current theme — no manual selection tracking.
+        Picker("Theme", selection: $theme.id) {
+            ForEach(ThemeSwatch.all) { swatch in
+                Text(swatch.name).tag(swatch.themeID)
+            }
+        }
+        Divider()
+        Button("Check for Updates…") { updater.checkForUpdates() }
+            .disabled(!updater.canCheckForUpdates)
+        Divider()
+        Button("Quit LiquidGlassDemo") { NSApp.terminate(nil) }
     }
 }
 
@@ -94,8 +141,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // Recreate a window when the app is reactivated (Dock click / ⌘-Tab) with no
-    // visible windows. `WindowGroup` supplies the window; this just asks AppKit to
-    // restore one.
+    // visible windows. `Window` supplies the window; this just asks AppKit to
+    // restore one. (Under `swift run` reopen is a no-op — use the tray's Open.)
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows: Bool) -> Bool {
         true
     }
@@ -121,9 +168,11 @@ enum Snapshot {
         // Disable the behind-window vibrancy (no live desktop to sample offscreen)
         // and paint an opaque theme fill behind the content so the translucent
         // sidebars/margins read as clean chrome instead of desktop bleed.
+        let store = ThemeStore()
         let content = ContentView(windowMaterial: nil)
             .frame(width: size.width, height: size.height)
-            .background(ThemeStore().background)
+            .background(store.background)
+            .environment(store)
             // ImageRenderer ignores `.preferredColorScheme`, so drive the scheme via
             // the environment directly — that's what SwiftUI resolves adaptive
             // colors against, giving genuinely different light/dark snapshots.

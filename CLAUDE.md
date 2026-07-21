@@ -1,6 +1,7 @@
 ## General
 
-- A macOS SwiftUI demo ("Liquid Glass"): a themed glass-card window with collapsible sidebars, a settings modal, and live theme + Light/Dark/System switching. SwiftPM executable, no Xcode project. Targets macOS 15+, Swift 6.
+- A macOS SwiftUI demo ("Liquid Glass"): a themed glass-card window with collapsible sidebars, a settings modal, a menu bar extra (tray), and live theme + Light/Dark/System switching. SwiftPM executable, no Xcode project. Targets macOS 15+, Swift 6.
+- The main scene is a single `Window` (not `WindowGroup`): one app window max — no File ▸ New Window duplicates, and `openWindow(id:)` always focuses the same window.
 - Build all functionality in SwiftUI; drop to AppKit only for a feature SwiftUI doesn't expose (see AppKit bridging).
 - Design UI idiomatically for macOS, following Apple's Human Interface Guidelines.
 - Use SF Symbols for iconography, not custom image assets.
@@ -32,7 +33,7 @@
 
 ## State
 
-- App state is `@Observable` classes owned by `ContentView` and injected via `.environment(…)`: `ThemeStore`, `UIState`, `TransparencyModel`, `SystemAppearance`.
+- App state is `@Observable` classes injected via `.environment(…)`: `ThemeStore` is owned by `LiquidGlassDemoApp` (shared with the `MenuBarExtra` scene — a tray theme switch recolors the window); `UIState`, `TransparencyModel`, and `SystemAppearance` are owned by `ContentView`.
 - Persisted settings use the `didSet → UserDefaults` + read-in-`init` pattern with a key from `Prefs`.
 - `@State` is always `private`. Mark UI-owned observable models `@MainActor`.
 
