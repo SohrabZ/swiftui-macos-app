@@ -10,8 +10,8 @@ struct GridPattern: View {
     @Environment(ThemeStore.self) private var theme
 
     var body: some View {
-        let minorColor = theme.gridLine.opacity(0.07)
-        let majorColor = theme.accent.opacity(0.22)
+        let minorColor = theme.gridLine.opacity(0.10)
+        let majorColor = theme.accent.opacity(0.25)
         Canvas { context, size in
             var minor = Path()
             var major = Path()

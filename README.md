@@ -14,17 +14,21 @@ Package, so there's no Xcode project to open — `swift run` and go.
 
 ## Features
 
-- **Three-column shell** — a collapsible left sidebar, a main content area (the
-  glass card over a grid backdrop), and an optional right panel. Toggles live on
-  the traffic-light row as native titlebar accessories.
+- **Three-column shell** — a collapsible left sidebar with a theme quick-switch
+  list, a main content area (the glass card over a themed mesh backdrop), and an
+  optional right inspector panel. Toggles live on the traffic-light row as native
+  titlebar accessories.
+- **Real Liquid Glass** — the hero card uses the native `glassEffect` on macOS 26
+  (tinted, interactive), with a tuned blur-mask fallback below it.
 - **Six themes** — Slate, Nous, Midnight, Ember, Mono, and Cyberpunk, each with
-  light and dark variants. Pick a theme and the whole app recolors instantly.
+  light and dark variants. Pick a theme and the whole app recolors instantly —
+  including the mesh backdrop behind the card.
 - **Light / Dark / System** — an explicit appearance mode that resolves System to
   the live OS setting and reverts cleanly.
 - **Glass controls** — tune the card's opacity and the backdrop blur behind it from
   the settings panel and watch the frosted grid respond.
-- **Native settings modal** — a dim backdrop, a sectioned panel, and a custom thin
-  scrollbar, all themed.
+- **Native settings modal** — a dim backdrop and a compact themed panel with a
+  custom thin scrollbar.
 - **Persistence** — theme, appearance mode, glass settings, and sidebar state are
   saved to `UserDefaults` and restored on the next launch.
 
@@ -81,9 +85,9 @@ Every theme ships with a light and a dark variant.
 ## Settings
 
 Open settings from the titlebar cog. It's a native, fully themed modal — a dim
-backdrop, a sectioned left nav, and a custom thin scrollbar — not a stock
+backdrop, a compact single-column panel, and a custom thin scrollbar — not a stock
 `Settings` scene, so it recolors with the rest of the app and is easy to extend:
-add a case to `SettingsSection` and a matching content view.
+add a row to the panel in `SettingsModal.swift`.
 
 The **Appearance** section drives the whole look:
 
@@ -110,7 +114,9 @@ manually from **LiquidGlassDemo ▸ Check for Updates…**. Maintainers: see
 
 ## Requirements
 
-- **macOS 15+** — uses `pointerStyle`, `onScrollGeometryChange`, and `ScrollPosition`.
+- **macOS 15+** — uses `pointerStyle`, `onScrollGeometryChange`, and `ScrollPosition`;
+  on macOS 26 the hero card upgrades to the real `glassEffect` (gated with
+  `#available`, blur-mask fallback below).
 - **Swift 6** (Xcode 16+). Check with `swift --version`.
 
 ## Build & run
@@ -150,7 +156,8 @@ BIN="$(swift build --show-bin-path)/LiquidGlassDemo"
 |------|---------|
 | [LiquidGlassDemoApp.swift](Sources/LiquidGlassDemo/LiquidGlassDemoApp.swift) | `@main` entry; windowed app, `--snapshot`/`--icon` render modes, `AppDelegate` (Dock icon, activation, window lifecycle) |
 | [ContentView.swift](Sources/LiquidGlassDemo/ContentView.swift) | Three-column shell, header, and window configuration |
-| [Sidebars.swift](Sources/LiquidGlassDemo/Sidebars.swift) | `SidebarTint` — the translucent side columns |
+| [HeroCard.swift](Sources/LiquidGlassDemo/HeroCard.swift) | The glass hero card — native `glassEffect` on macOS 26, tinted fallback below |
+| [Sidebars.swift](Sources/LiquidGlassDemo/Sidebars.swift) | Translucent side columns: theme quick-switch list, inspector, resize dividers |
 | [SettingsModal.swift](Sources/LiquidGlassDemo/SettingsModal.swift) · [ThemePicker.swift](Sources/LiquidGlassDemo/ThemePicker.swift) | Settings modal and the Appearance/theme UI |
 | [HeaderAccessory.swift](Sources/LiquidGlassDemo/HeaderAccessory.swift) · [IconButton.swift](Sources/LiquidGlassDemo/IconButton.swift) | Titlebar accessory buttons |
 | [Theme.swift](Sources/LiquidGlassDemo/Theme.swift) | `ThemeStore` (`@Observable`) and every palette |
@@ -179,10 +186,10 @@ Starting a new app from this template:
 - **Retoken** sizes, radii, fonts, and defaults keys in
   [DesignSystem.swift](Sources/LiquidGlassDemo/DesignSystem.swift) instead of
   inlining values.
-- **Extend settings** by adding a `SettingsSection` case and its content view in
+- **Extend settings** by adding a row to the panel in
   [SettingsModal.swift](Sources/LiquidGlassDemo/SettingsModal.swift).
 - **Swap the content** — replace the demo glass card in
-  [ContentView.swift](Sources/LiquidGlassDemo/ContentView.swift) with your own
+  [HeroCard.swift](Sources/LiquidGlassDemo/HeroCard.swift) with your own
   main view; the shell, theming, and settings stay.
 
 ## License

@@ -11,6 +11,8 @@ struct Palette {
     let background, panel, border, divider: Color
     let textPrimary, textSecondary, accent, gridLine: Color
     let bgLightHex, bgDarkHex: UInt32
+    /// Accent as raw hex per appearance, for pure-hex color math (mesh tinting).
+    let accentLightHex, accentDarkHex: UInt32
 }
 
 /// Observable theme store. Injected through the SwiftUI environment
@@ -38,6 +40,9 @@ final class ThemeStore {
     /// The current palette, resolved once per `id` change rather than on every
     /// color read (every themed view reads several of these properties).
     private var p: Palette = ThemeStore.slate
+
+    /// The active palette, for callers that derive colors (e.g. mesh tinting).
+    var palette: Palette { p }
 
     var background: Color { p.background }
     var panel: Color { p.panel }
@@ -74,7 +79,8 @@ final class ThemeStore {
         divider: Color(lightHex: 0xE1E4E8, darkHex: 0x333A47),
         textPrimary: textPrimary, textSecondary: textSecondary,
         accent: Color(lightHex: 0x4169E1, darkHex: 0x5E7CE0),
-        gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x0B0D12)
+        gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x0B0D12,
+        accentLightHex: 0x4169E1, accentDarkHex: 0x5E7CE0)
 
     static let palettes: [ThemeID: Palette] = [
         .slate: slate,
@@ -85,7 +91,8 @@ final class ThemeStore {
             divider: Color(lightHex: 0xE1E4E8, darkHex: 0x2E3B5A),
             textPrimary: textPrimary, textSecondary: textSecondary,
             accent: Color(lightHex: 0x2E6BE6, darkHex: 0x5B8DEF),
-            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x0E1420),
+            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x0E1420,
+            accentLightHex: 0x2E6BE6, accentDarkHex: 0x5B8DEF),
         .midnight: Palette(
             background: Color(lightHex: 0xFFFFFF, darkHex: 0x12122A),
             panel: Color(lightHex: 0xF4F3FA, darkHex: 0x1B1B38),
@@ -93,7 +100,8 @@ final class ThemeStore {
             divider: Color(lightHex: 0xE4E1EE, darkHex: 0x38356A),
             textPrimary: textPrimary, textSecondary: textSecondary,
             accent: Color(lightHex: 0x6D5FD6, darkHex: 0x9385F0),
-            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x12122A),
+            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x12122A,
+            accentLightHex: 0x6D5FD6, accentDarkHex: 0x9385F0),
         .ember: Palette(
             background: Color(lightHex: 0xFFFBF8, darkHex: 0x1E1210),
             panel: Color(lightHex: 0xF7EFE9, darkHex: 0x2A1B16),
@@ -101,7 +109,8 @@ final class ThemeStore {
             divider: Color(lightHex: 0xEBDED5, darkHex: 0x4A2E24),
             textPrimary: textPrimary, textSecondary: textSecondary,
             accent: Color(lightHex: 0xC0562E, darkHex: 0xE0793F),
-            gridLine: gridLine, bgLightHex: 0xFFFBF8, bgDarkHex: 0x1E1210),
+            gridLine: gridLine, bgLightHex: 0xFFFBF8, bgDarkHex: 0x1E1210,
+            accentLightHex: 0xC0562E, accentDarkHex: 0xE0793F),
         .mono: Palette(
             background: Color(lightHex: 0xFFFFFF, darkHex: 0x0E0E0E),
             panel: Color(lightHex: 0xF4F4F4, darkHex: 0x181818),
@@ -109,7 +118,8 @@ final class ThemeStore {
             divider: Color(lightHex: 0xE2E2E2, darkHex: 0x333333),
             textPrimary: textPrimary, textSecondary: textSecondary,
             accent: Color(lightHex: 0x555555, darkHex: 0xAAAAAA),
-            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x0E0E0E),
+            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x0E0E0E,
+            accentLightHex: 0x555555, accentDarkHex: 0xAAAAAA),
         .cyberpunk: Palette(
             background: Color(lightHex: 0xFFFFFF, darkHex: 0x060A06),
             panel: Color(lightHex: 0xF1F7F2, darkHex: 0x0E160E),
@@ -117,7 +127,8 @@ final class ThemeStore {
             divider: Color(lightHex: 0xDDE8DD, darkHex: 0x24361F),
             textPrimary: textPrimary, textSecondary: textSecondary,
             accent: Color(lightHex: 0x1FA81F, darkHex: 0x4CE44C),
-            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x060A06)
+            gridLine: gridLine, bgLightHex: 0xFFFFFF, bgDarkHex: 0x060A06,
+            accentLightHex: 0x1FA81F, accentDarkHex: 0x4CE44C)
     ]
 }
 

@@ -10,7 +10,7 @@ struct GlassCardModel: Equatable {
     static let demo = GlassCardModel(
         iconName: "drop.fill",
         title: "Liquid Glass",
-        subtitle: "This card uses ultraThinMaterial to create a glass effect on macOS 26."
+        subtitle: "Real Liquid Glass over a live themed mesh — tint, frost, and light respond as you tune them."
     )
 }
 
@@ -63,6 +63,33 @@ struct MeshBackdrop {
     var isValid: Bool {
         let expected = width * height
         return points.count == expected && colors.count == expected
+    }
+
+    /// Recolors the mesh to the active theme: background-derived points with a
+    /// soft accent bloom (strongest at the center), so switching themes visibly
+    /// transforms the hero area. Computed per light/dark hex pair, so the result
+    /// stays appearance-adaptive.
+    func tinted(with palette: Palette) -> MeshBackdrop {
+        func color(_ t: Double) -> Color {
+            Color(lightHex: Self.mix(palette.bgLightHex, palette.accentLightHex, by: t),
+                  darkHex: Self.mix(palette.bgDarkHex, palette.accentDarkHex, by: t))
+        }
+        return MeshBackdrop(width: width, height: height, points: points, colors: [
+            color(0.00), color(0.06), color(0.00),
+            color(0.10), color(0.18), color(0.08),
+            color(0.00), color(0.06), color(0.02)
+        ])
+    }
+
+    /// Linearly interpolates two 0xRRGGBB colors per channel; `t` clamps to 0…1.
+    static func mix(_ a: UInt32, _ b: UInt32, by t: Double) -> UInt32 {
+        let t = min(max(t, 0), 1)
+        func channel(_ shift: UInt32) -> UInt32 {
+            let av = Double((a >> shift) & 0xFF)
+            let bv = Double((b >> shift) & 0xFF)
+            return UInt32((av + (bv - av) * t).rounded()) & 0xFF
+        }
+        return (channel(16) << 16) | (channel(8) << 8) | channel(0)
     }
 
     static let demo = MeshBackdrop(

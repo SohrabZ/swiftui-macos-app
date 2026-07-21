@@ -14,6 +14,11 @@ struct ThemeSwatch: Identifiable {
 
     var id: String { name }
 
+    /// Display name for a theme id (hero card badge, inspector readout).
+    static func name(for id: ThemeID) -> String {
+        all.first { $0.themeID == id }?.name ?? id.rawValue.capitalized
+    }
+
     // NOTE: these are mini-mockup preview colors, intentionally distinct from the
     // real palettes in `ThemeStore.palettes`. Keep the two tables in sync when a
     // theme's identity changes.
@@ -130,7 +135,7 @@ struct ThemePicker: View {
     private var searchField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").font(Typography.iconSmall).foregroundStyle(theme.textSecondary)
-            TextField("Search your themes or the VS Code Marketplace...", text: $search)
+            TextField("Search themes…", text: $search)
                 .textFieldStyle(.plain)
                 .font(Typography.body)
                 .foregroundStyle(theme.textPrimary)
@@ -195,7 +200,7 @@ struct ThemePicker: View {
             .clipShape(RoundedRectangle(cornerRadius: Radius.field, style: .continuous))
             .themedBorder(Radius.field, color: theme.border.opacity(0.6))
         }
-        .frame(height: 122)
+        .frame(height: 92)
     }
 }
 
