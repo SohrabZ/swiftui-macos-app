@@ -96,6 +96,7 @@ private struct TrayMenu: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
+        @Bindable var theme = theme
         Button("Open LiquidGlassDemo") {
             // Single `Window` scene: this reopens it when closed, focuses it
             // when visible — never a duplicate.
@@ -103,14 +104,11 @@ private struct TrayMenu: View {
             NSApp.activate(ignoringOtherApps: true)
         }
         Divider()
-        Menu("Theme") {
+        // Picker renders as a "Theme ▸" submenu with a native checkmark on the
+        // current theme — no manual selection tracking.
+        Picker("Theme", selection: $theme.id) {
             ForEach(ThemeSwatch.all) { swatch in
-                Button {
-                    theme.id = swatch.themeID
-                } label: {
-                    Label(swatch.name,
-                          systemImage: theme.id == swatch.themeID ? "checkmark" : "")
-                }
+                Text(swatch.name).tag(swatch.themeID)
             }
         }
         Divider()
