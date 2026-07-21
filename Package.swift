@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "LiquidGlassDemo",
+    defaultLocalization: "en",
     platforms: [.macOS(.v15)],
     products: [
         .executable(name: "LiquidGlassDemo", targets: ["LiquidGlassDemo"])
@@ -15,7 +16,9 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "LiquidGlassDemo",
-            dependencies: [.product(name: "Sparkle", package: "Sparkle")]
+            dependencies: [.product(name: "Sparkle", package: "Sparkle")],
+            // String catalog for L10n (compiled into the resource bundle).
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "LiquidGlassDemoTests",

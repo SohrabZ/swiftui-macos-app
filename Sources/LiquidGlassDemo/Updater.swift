@@ -23,8 +23,10 @@ final class Updater: ObservableObject {
             self.controller = controller
             controller.updater.publisher(for: \.canCheckForUpdates)
                 .assign(to: &$canCheckForUpdates)
+            AppLog.updates.info("Sparkle started — update checks enabled")
         } else {
             controller = nil
+            AppLog.updates.info("No SUFeedURL (dev run) — update checks disabled")
         }
     }
 

@@ -11,9 +11,14 @@ private let sidebarTintOpacity: Double = 0.7
 /// `SidebarInspector`). Used for both the left and right columns.
 struct SidebarTint: View {
     @Environment(ThemeStore.self) private var theme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.reduceTransparencyOverride) private var reduceTransparencyOverride
 
     var body: some View {
-        theme.background.opacity(sidebarTintOpacity)
+        theme.background.opacity(GlassA11y.sidebarOpacity(
+            sidebarTintOpacity,
+            reduceTransparency: GlassA11y.effective(system: reduceTransparency,
+                                                    override: reduceTransparencyOverride)))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -84,6 +89,9 @@ struct SidebarThemes: View {
         .buttonStyle(.plain)
         .focusEffectDisabled()
         .pointerStyle(.link)
+        .accessibilityLabel(swatch.name)
+        .accessibilityHint("Switches the theme")
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
 

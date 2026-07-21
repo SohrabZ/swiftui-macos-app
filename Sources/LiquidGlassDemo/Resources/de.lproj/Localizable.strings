@@ -1,0 +1,33 @@
+/* German sample translations for the L10n scaffold. */
+"Settings" = "Einstellungen";
+"Launch at Login" = "Beim Anmelden öffnen";
+"Open LiquidGlassDemo automatically when you log in." = "LiquidGlassDemo automatisch beim Anmelden öffnen.";
+"Only available in the installed app." = "Nur in der installierten App verfügbar.";
+"Theme" = "Design";
+"Search themes…" = "Designs suchen…";
+"A SwiftUI macOS app boilerplate — themed shell, settings, persistence, and Sparkle updates, wired and tested." = "Eine SwiftUI-macOS-App-Vorlage — Theme-Shell, Einstellungen, Persistenz und Sparkle-Updates, fertig verdrahtet und getestet.";
+
+/* First-run onboarding. */
+"Welcome to LiquidGlassDemo" = "Willkommen bei LiquidGlassDemo";
+"A themed SwiftUI shell for your next macOS app — here's the quick tour." = "Eine SwiftUI-Oberfläche mit Themes für deine nächste macOS-App — hier die Kurztour.";
+"Six adaptive themes with Light/Dark/System" = "Sechs adaptive Themes mit Hell/Dunkel/System";
+"Menu bar quick access and keyboard shortcuts" = "Schnellzugriff über die Menüleiste und Tastaturkurzbefehle";
+"Sparkle auto-updates and launch at login" = "Automatische Updates per Sparkle und Start bei der Anmeldung";
+"Get Started" = "Los geht's";
+
+/* Accessibility section (settings). */
+"Accessibility" = "Bedienungshilfen";
+"Layered on top of the system settings." = "Zusätzlich zu den Systemeinstellungen.";
+"Reduce Motion" = "Bewegung reduzieren";
+"Reduce Transparency" = "Transparenz reduzieren";
+"Increase Contrast" = "Kontrast erhöhen";
+
+/* Settings sections and accessibility row help. */
+"General" = "Allgemein";
+"Appearance" = "Erscheinungsbild";
+"Launch and login behavior." = "Start- und Anmeldeverhalten.";
+"Desktop display preferences." = "Anzeigeoptionen für den Desktop.";
+"The selected mode is applied on top of the palette." = "Der gewählte Modus wird über der Palette angewendet.";
+"Limit hover effects and panel animations." = "Hover-Effekte und Panel-Animationen begrenzen.";
+"Show solid surfaces instead of see-through glass." = "Deckende Flächen statt durchscheinendem Glas anzeigen.";
+"Draw borders and separators in stronger colors." = "Rahmen und Trennlinien in kräftigeren Farben darstellen.";

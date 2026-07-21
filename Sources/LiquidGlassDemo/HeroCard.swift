@@ -92,12 +92,14 @@ struct HeroCard: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(theme.accent)
+            .focusEffectDisabled()
 
             Button { ui.rightSidebarVisible.toggle() } label: {
                 Label(ui.rightSidebarVisible ? "Hide Inspector" : "Show Inspector",
                       systemImage: "sidebar.right")
             }
             .buttonStyle(.bordered)
+            .focusEffectDisabled()
         }
         .controlSize(.large)
         .pointerStyle(.link)

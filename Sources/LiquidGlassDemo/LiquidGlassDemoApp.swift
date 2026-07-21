@@ -14,7 +14,8 @@ struct Main {
             MainActor.assumeIsolated {
                 Snapshot.write(to: args[i + 1], size: size,
                                theme: value(of: "--theme", in: args),
-                               appearance: value(of: "--appearance", in: args))
+                               appearance: value(of: "--appearance", in: args),
+                               view: value(of: "--view", in: args))
             }
             return
         }
@@ -68,14 +69,17 @@ struct LiquidGlassDemoApp: App {
         .windowResizability(.contentMinSize)
         .defaultSize(width: 1180, height: 760)
         .defaultPosition(.center)
-        .commands {
-            // Standard "Check for Updates…" item under the app menu. Disabled (and
-            // inert) unless running as a configured, signed bundle — see Updater.
-            CommandGroup(after: .appInfo) {
-                Button("Check for Updates…") { updater.checkForUpdates() }
-                    .disabled(!updater.canCheckForUpdates)
-            }
+        .commands { ShellCommands(theme: theme, updater: updater) }
+
+        // Themed About panel, opened from the app menu (ShellCommands replaces
+        // the stock About item). Single fixed-size instance.
+        Window("About \(AppInfo.name)", id: "about") {
+            AboutView()
+                .environment(theme)
         }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
 
         // System tray: open the window, quick theme switch, updates, quit.
         MenuBarExtra {
@@ -125,6 +129,7 @@ private struct TrayMenu: View {
 /// become the active app).
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppLog.app.notice("Launched \(AppInfo.name, privacy: .public) \(AppInfo.versionString, privacy: .public)")
         NSApp.setActivationPolicy(.regular)
         MainActor.assumeIsolated {
             if let icon = AppIcon.make() {
@@ -156,7 +161,9 @@ enum Snapshot {
     /// and `appearance` (`light`/`dark`) let the README asset script capture varied
     /// shots — they seed `UserDefaults` and force the app appearance so the adaptive
     /// palette resolves for the requested mode before `ImageRenderer` rasterizes.
-    static func write(to path: String, size: CGSize, theme: String? = nil, appearance: String? = nil) {
+    /// `view` selects what to render: the main shell (default) or the About panel.
+    static func write(to path: String, size: CGSize, theme: String? = nil,
+                      appearance: String? = nil, view: String? = nil) {
         if let theme { UserDefaults.standard.set(theme, forKey: Prefs.theme) }
 
         let dark = appearance?.lowercased() == "dark"
@@ -169,7 +176,20 @@ enum Snapshot {
         // and paint an opaque theme fill behind the content so the translucent
         // sidebars/margins read as clean chrome instead of desktop bleed.
         let store = ThemeStore()
-        let content = ContentView(windowMaterial: nil)
+        let nsAppearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+
+        if view == "about" {
+            // The About panel at its intrinsic size (no window to match).
+            let about = AboutView()
+                .background(store.background)
+                .environment(store)
+                .environment(\.colorScheme, scheme)
+            PNGRenderer.write(about, to: path, scale: 2, label: "about",
+                              appearance: nsAppearance)
+            return
+        }
+
+        let content = ContentView(windowMaterial: nil, showsOnboarding: false)
             .frame(width: size.width, height: size.height)
             .background(store.background)
             .environment(store)
@@ -178,6 +198,6 @@ enum Snapshot {
             // colors against, giving genuinely different light/dark snapshots.
             .environment(\.colorScheme, scheme)
         PNGRenderer.write(content, to: path, scale: 2, label: "snapshot",
-                          appearance: NSAppearance(named: dark ? .darkAqua : .aqua))
+                          appearance: nsAppearance)
     }
 }

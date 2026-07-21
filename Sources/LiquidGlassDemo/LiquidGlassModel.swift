@@ -50,6 +50,31 @@ struct OpacityControl {
     static let card = OpacityControl(range: 0.0...1.0, defaultValue: 0.8)
 }
 
+/// Accessibility-driven overrides for the glass rendering (Reduce Transparency
+/// solidifies see-through surfaces). Pure functions so they stay testable.
+enum GlassA11y {
+    /// The effective value of a behavior: the system setting OR the in-app
+    /// override (an override can only turn a behavior on, never off).
+    static func effective(system: Bool, override: Bool) -> Bool {
+        system || override
+    }
+
+    /// Card-panel opacity: fully opaque under Reduce Transparency.
+    static func cardAlpha(_ alpha: Double, reduceTransparency: Bool) -> Double {
+        reduceTransparency ? 1 : alpha
+    }
+
+    /// Backdrop frost: removed under Reduce Transparency.
+    static func blur(_ blur: Double, reduceTransparency: Bool) -> Double {
+        reduceTransparency ? 0 : blur
+    }
+
+    /// Sidebar tint over the window vibrancy: fully opaque under Reduce Transparency.
+    static func sidebarOpacity(_ opacity: Double, reduceTransparency: Bool) -> Double {
+        reduceTransparency ? 1 : opacity
+    }
+}
+
 /// Backdrop mesh-gradient definition. Storing the grid as plain data lets tests
 /// verify the mesh is well-formed (point/color counts match the grid size).
 struct MeshBackdrop {

@@ -24,6 +24,7 @@ MIN_OS="$(yaml_get minimum_system_version)"
 FEED_URL="$(yaml_get feed_url)"
 ED_KEY="$(yaml_get sparkle_public_ed_key)"
 DEV_ID="$(yaml_get developer_id_application)"
+URL_SCHEME="$(yaml_get url_scheme)"
 
 VERSION="1.0.0"
 BUILD="1"
@@ -50,6 +51,12 @@ mkdir -p "$MACOS" "$RES" "$FW"
 swift build -c release --product "$EXECUTABLE"
 BIN_DIR="$(swift build -c release --show-bin-path)"
 cp "$BIN_DIR/$EXECUTABLE" "$MACOS/$EXECUTABLE"
+
+# 1b. SwiftPM resource bundle (the compiled string catalog backing L10n).
+RSRC_BUNDLE="$BIN_DIR/${EXECUTABLE}_${EXECUTABLE}.bundle"
+if [[ -d "$RSRC_BUNDLE" ]]; then
+  cp -R "$RSRC_BUNDLE" "$RES/"
+fi
 
 # 2. Embed Sparkle and point the executable at Contents/Frameworks.
 SPARKLE_FW="$(find .build/artifacts -path '*Sparkle.xcframework*/macos-*/Sparkle.framework' -type d | head -1)"
@@ -80,6 +87,19 @@ else
   echo "ℹ️  Sparkle keys omitted (sparkle_public_ed_key not set) — auto-update stays off in this build."
 fi
 
+# Deep-link URL scheme (CFBundleURLTypes) — only when configured in app.yml.
+URL_KEYS=""
+if [[ -n "$URL_SCHEME" ]]; then
+  URL_KEYS="    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>$BUNDLE_ID</string>
+            <key>CFBundleURLSchemes</key>
+            <array><string>$URL_SCHEME</string></array>
+        </dict>
+    </array>"
+fi
+
 cat > "$CONTENTS/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -97,6 +117,7 @@ cat > "$CONTENTS/Info.plist" <<PLIST
     <key>LSApplicationCategoryType</key><string>$CATEGORY</string>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSPrincipalClass</key><string>NSApplication</string>
+$URL_KEYS
 $SPARKLE_KEYS
 </dict>
 </plist>

@@ -1,12 +1,52 @@
 import SwiftUI
 
-/// Modal settings panel: dim backdrop + a compact centered panel with the
-/// Appearance content (mode picker, theme grid, transparency sliders).
+/// The sections shown in the settings modal's left nav. Add a case (plus its
+/// localized title/subtitle) to add a settings page.
+enum SettingsSection: String, CaseIterable, Identifiable {
+    case general = "General"
+    case appearance = "Appearance"
+    case accessibility = "Accessibility"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .general: "gearshape"
+        case .appearance: "paintpalette"
+        case .accessibility: "accessibility"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .general: L10n.general
+        case .appearance: L10n.appearance
+        case .accessibility: L10n.accessibility
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .general: L10n.generalHelp
+        case .appearance: L10n.appearanceHelp
+        case .accessibility: L10n.accessibilityHelp
+        }
+    }
+}
+
+/// Modal settings panel: dim backdrop + centered panel with a left section nav
+/// and a scrollable content area (label+help rows with right-aligned controls).
 struct SettingsModal: View {
     @Bindable var model: TransparencyModel
     @Bindable var ui: UIState
+    @Bindable var a11y: AccessibilitySettings
 
     @Environment(ThemeStore.self) private var theme
+    @Environment(ErrorStore.self) private var errors
+    // Owned here (recreated on each open) so the toggle always reflects the
+    // real SMAppService status, including changes made in System Settings.
+    @State private var launchAtLogin = LaunchAtLogin()
+    @State private var section: SettingsSection = .general
 
     var body: some View {
         ZStack {
@@ -14,38 +54,12 @@ struct SettingsModal: View {
                 .ignoresSafeArea()
                 .onTapGesture { close() }
 
-            ScrollableContent {
-                VStack(alignment: .leading, spacing: 0) {
-                    header
-
-                    ThemePicker(ui: ui)
-                    rowDivider
-
-                    settingRow("Card Opacity",
-                               "Fade just the glass card panel; the content stays readable.") {
-                        SliderControl(value: $model.cardOpacity,
-                                      range: OpacityControl.card.range,
-                                      percent: OpacityControl.card.percent(model.cardOpacity))
-                    }
-                    rowDivider
-
-                    settingRow("Card Blur",
-                               "Frost intensity of the glass backdrop behind the card.") {
-                        SliderControl(value: $model.blur,
-                                      range: TransparencyModel.blurRange,
-                                      percent: model.blurPercent)
-                    }
-                }
-                // Extra top/right padding reserves space for the close icon
-                // (top-right) and the scrollbar (right edge).
-                .padding(.top, 22)
-                .padding(.leading, 28)
-                .padding(.trailing, 42)
-                .padding(.bottom, 20)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 0) {
+                sidebar
+                Rectangle().fill(theme.divider).frame(width: Layout.hairline)
+                content
             }
-            .frame(width: 640)
-            .frame(maxHeight: 720)
+            .frame(maxWidth: 900, maxHeight: 720)
             .background(theme.panel)
             .clipShape(RoundedRectangle(cornerRadius: Radius.panel, style: .continuous))
             .themedBorder(Radius.panel)
@@ -68,15 +82,124 @@ struct SettingsModal: View {
 
     private func close() { ui.showSettings = false }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("Appearance").font(Typography.title).foregroundStyle(theme.textPrimary)
-            Text("Desktop-only display preferences. Theme controls the accent palette and surface styling; transparency controls how much shows through.")
-                .font(Typography.caption)
-                .foregroundStyle(theme.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+    // MARK: Nav
+
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(SettingsSection.allCases) { item in
+                navRow(item)
+            }
+            Spacer()
         }
-        .padding(.bottom, 16)
+        .padding(10)
+        .frame(width: 200)
+        .frame(maxHeight: .infinity, alignment: .top)
+    }
+
+    private func navRow(_ item: SettingsSection) -> some View {
+        Button {
+            section = item
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: item.icon).font(Typography.icon).frame(width: 18)
+                Text(item.title).font(Typography.body)
+                Spacer()
+            }
+            .foregroundStyle(section == item ? theme.textPrimary : theme.textSecondary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: Radius.row)
+                    .fill(section == item ? theme.selectionFill : .clear)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .focusEffectDisabled()
+        .pointerStyle(.link)
+        .accessibilityLabel(item.title)
+        .accessibilityAddTraits(section == item ? .isSelected : [])
+    }
+
+    // MARK: Content
+
+    private var content: some View {
+        ScrollableContent {
+            VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(section.title).font(Typography.title).foregroundStyle(theme.textPrimary)
+                    Text(section.subtitle)
+                        .font(Typography.caption)
+                        .foregroundStyle(theme.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.bottom, 16)
+
+                switch section {
+                case .general: generalSection
+                case .appearance: appearanceSection
+                case .accessibility: accessibilitySection
+                }
+            }
+            // Extra top/right padding reserves space for the close icon
+            // (top-right) and the scrollbar (right edge).
+            .padding(.top, 22)
+            .padding(.leading, 28)
+            .padding(.trailing, 42)
+            .padding(.bottom, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var generalSection: some View {
+        settingRow(L10n.launchAtLogin,
+                   launchAtLogin.available
+                       ? L10n.launchAtLoginHelp
+                       : L10n.launchAtLoginUnavailable) {
+            Toggle(L10n.launchAtLogin, isOn: Binding(
+                get: { launchAtLogin.enabled },
+                set: { launchAtLogin.setEnabled($0, reporting: errors) }
+            ))
+            .labelsHidden()
+            .toggleStyle(.switch)
+            .tint(theme.accent)
+            .disabled(!launchAtLogin.available)
+        }
+    }
+
+    private var appearanceSection: some View {
+        Group {
+            ThemePicker(ui: ui)
+            rowDivider
+
+            settingRow("Card Opacity",
+                       "Fade just the glass card panel; the content stays readable.") {
+                SliderControl(value: $model.cardOpacity,
+                              range: OpacityControl.card.range,
+                              percent: OpacityControl.card.percent(model.cardOpacity),
+                              label: "Card Opacity")
+            }
+            rowDivider
+
+            settingRow("Card Blur",
+                       "Frost intensity of the glass backdrop behind the card.") {
+                SliderControl(value: $model.blur,
+                              range: TransparencyModel.blurRange,
+                              percent: model.blurPercent,
+                              label: "Card Blur")
+            }
+        }
+    }
+
+    private var accessibilitySection: some View {
+        Group {
+            toggleRow(L10n.reduceMotion, L10n.reduceMotionHelp, isOn: $a11y.reduceMotion)
+            rowDivider
+            toggleRow(L10n.reduceTransparency, L10n.reduceTransparencyHelp,
+                      isOn: $a11y.reduceTransparency)
+            rowDivider
+            toggleRow(L10n.increaseContrast, L10n.increaseContrastHelp, isOn: $a11y.increaseContrast)
+        }
     }
 
     private var rowDivider: some View {
@@ -97,6 +220,17 @@ struct SettingsModal: View {
             control()
         }
     }
+
+    /// A settings row whose control is a right-aligned switch (the Launch at
+    /// Login pattern): title + help on the left, tinted switch on the right.
+    private func toggleRow(_ title: String, _ help: String, isOn: Binding<Bool>) -> some View {
+        settingRow(title, help) {
+            Toggle(title, isOn: isOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+                .tint(theme.accent)
+        }
+    }
 }
 
 /// Inline slider + trailing live percentage (right-aligned control). Nudges its
@@ -106,13 +240,17 @@ struct SliderControl: View {
     @Binding var value: Double
     let range: ClosedRange<Double>
     let percent: Int
+    /// VoiceOver label (the row's visible title); the percent is the spoken value.
+    let label: String
 
     @Environment(ThemeStore.self) private var theme
     @State private var width: CGFloat = 179
 
     var body: some View {
         HStack(spacing: 12) {
-            Slider(value: $value, in: range)
+            Slider(value: $value, in: range) { Text(label) }
+                .labelsHidden()
+                .accessibilityValue("\(percent)%")
                 .frame(width: width)
                 .tint(theme.accent)
             Text("\(percent)%")
@@ -125,7 +263,8 @@ struct SliderControl: View {
 }
 
 #Preview {
-    SettingsModal(model: TransparencyModel(), ui: UIState())
-        .frame(width: 800, height: 760)
+    SettingsModal(model: TransparencyModel(), ui: UIState(), a11y: AccessibilitySettings())
+        .frame(width: 1000, height: 760)
         .environment(ThemeStore())
+        .environment(ErrorStore())
 }

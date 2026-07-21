@@ -8,6 +8,9 @@ app_name: "LiquidGlassDemo"
 executable: "LiquidGlassDemo"                 # SwiftPM product name
 bundle_identifier: "com.sohrabz.LiquidGlassDemo"   # TODO: your reverse-DNS bundle id
 category: "public.app-category.developer-tools"
+# Custom URL scheme for deep links, e.g. liquidglassdemo://theme/ember (see
+# DeepLink.swift). Written into the packaged app's Info.plist.
+url_scheme: "liquidglassdemo"
 minimum_system_version: "15.0"
 
 github_owner: "SohrabZ"
