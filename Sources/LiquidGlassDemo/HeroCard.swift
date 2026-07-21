@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// The glass hero card: theme badge, gradient icon disc, title, subtitle, and
-/// actions. The card's tint and shadow are painted underneath by `ContentView`
+/// The glass hero card: theme badge, app icon, title, subtitle, and actions. The card's tint and shadow are painted underneath by `ContentView`
 /// (see `mainColumn`), so the Card Opacity/Blur sliders drive real pixels on
 /// every OS. On macOS 26 the surface is clear native Liquid Glass
 /// (`.clear.interactive()`) — it contributes the glass edge, light response, and
@@ -38,7 +37,7 @@ struct HeroCard: View {
     private var content: some View {
         VStack(spacing: 0) {
             badge
-            iconDisc
+            logo
                 .padding(.top, 20)
             Text(card.title)
                 .font(.largeTitle)
@@ -70,34 +69,31 @@ struct HeroCard: View {
             .overlay(Capsule().strokeBorder(theme.accent.opacity(0.35), lineWidth: Layout.hairline))
     }
 
-    private var iconDisc: some View {
-        Image(systemName: card.iconName)
-            .font(Typography.iconHero)
-            .foregroundStyle(.white)
+    private var logo: some View {
+        AppIconView()
+            .scaleEffect(Layout.heroDisc / 1024)
             .frame(width: Layout.heroDisc, height: Layout.heroDisc)
-            .background(
-                Circle().fill(
-                    LinearGradient(colors: [theme.accent, theme.accent.opacity(0.75)],
-                                   startPoint: .topLeading, endPoint: .bottomTrailing)
-                )
-            )
-            .overlay(Circle().strokeBorder(.white.opacity(0.35), lineWidth: Layout.hairline))
             .shadow(color: theme.accent.opacity(0.35), radius: 12, y: 6)
     }
 
     private var actions: some View {
         HStack(spacing: 12) {
-            Button { ui.showSettings = true } label: {
+            Button {
+                ui.settingsSection = .appearance
+                ui.showSettings = true
+            } label: {
                 Label("Customize…", systemImage: "slider.horizontal.3")
             }
             .buttonStyle(.borderedProminent)
             .tint(theme.accent)
+            .focusEffectDisabled()
 
             Button { ui.rightSidebarVisible.toggle() } label: {
                 Label(ui.rightSidebarVisible ? "Hide Inspector" : "Show Inspector",
                       systemImage: "sidebar.right")
             }
             .buttonStyle(.bordered)
+            .focusEffectDisabled()
         }
         .controlSize(.large)
         .pointerStyle(.link)

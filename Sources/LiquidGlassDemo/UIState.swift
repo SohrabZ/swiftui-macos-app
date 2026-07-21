@@ -44,8 +44,9 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
 }
 
 /// App-shell UI state shared between the window content and the titlebar
-/// accessory buttons (sidebar toggles + settings). Sidebar visibility and the
-/// appearance mode are persisted to `UserDefaults`; `showSettings` is transient.
+/// accessory buttons (sidebar toggles + settings). Sidebar visibility, the
+/// appearance mode, and onboarding completion are persisted to `UserDefaults`;
+/// `showSettings`/`showOnboarding` are transient.
 @Observable
 @MainActor
 final class UIState {
@@ -64,9 +65,23 @@ final class UIState {
     var mode: AppearanceMode = .dark {
         didSet { UserDefaults.standard.set(mode.rawValue, forKey: Prefs.mode) }
     }
-    var showSettings = false
+    /// Set when onboarding completes — keeps the welcome panel from showing again.
+    var hasCompletedOnboarding = false {
+        didSet { UserDefaults.standard.set(hasCompletedOnboarding, forKey: Prefs.hasCompletedOnboarding) }
+    }
+    var showSettings = false {
+        // Closing returns the modal to General; deep links like the hero card's
+        // Customize button set a section first, then show.
+        didSet { if !showSettings { settingsSection = .general } }
+    }
+    /// The settings page the modal opens on (transient; reset to General on close).
+    var settingsSection: SettingsSection = .general
+    /// First-run welcome panel visibility, set at launch from the persisted flag.
+    var showOnboarding = false
 
-    init() {
+    /// `showsOnboarding` lets offscreen renders (`--snapshot`) skip the panel
+    /// without touching the persisted flag.
+    init(showsOnboarding: Bool = true) {
         let defaults = UserDefaults.standard
         if let v = defaults.optionalBool(forKey: Prefs.leftSidebar) { leftSidebarVisible = v }
         if let v = defaults.optionalBool(forKey: Prefs.rightSidebar) { rightSidebarVisible = v }
@@ -79,10 +94,20 @@ final class UIState {
         if let raw = defaults.string(forKey: Prefs.mode), let m = AppearanceMode(rawValue: raw) {
             mode = m
         }
+        if let completed = defaults.optionalBool(forKey: Prefs.hasCompletedOnboarding) {
+            hasCompletedOnboarding = completed
+        }
+        showOnboarding = showsOnboarding && !hasCompletedOnboarding
         // Asset-capture aid: boot straight into the settings modal so it can be
         // screenshotted from the live app (it can't be captured offscreen — the
         // scrollable content and NSSlider-backed controls need a real window).
         if ProcessInfo.processInfo.environment["LGD_OPEN_SETTINGS"] == "1" { showSettings = true }
+    }
+
+    /// Marks onboarding complete (persists) and dismisses the panel.
+    func completeOnboarding() {
+        hasCompletedOnboarding = true
+        showOnboarding = false
     }
 
     /// Confines a sidebar width to the resizable bounds.

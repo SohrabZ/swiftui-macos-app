@@ -7,12 +7,16 @@ struct ContentView: View {
 
     @State private var hoverScale: CGFloat = GlassHover.resting
     @State private var model = TransparencyModel()
-    @State private var ui = UIState()
+    @State private var ui: UIState
     @State private var systemAppearance = SystemAppearance()
+    @State private var errors = ErrorStore()
+    @State private var a11y = AccessibilitySettings()
     // Owned by LiquidGlassDemoApp and shared with the MenuBarExtra scene, so a
     // theme switch from the tray recolors this window live.
     @Environment(ThemeStore.self) private var theme
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     // Fixed card size lives on HeroCard so the frosted-backdrop mask aligns
     // exactly with the card.
@@ -24,10 +28,13 @@ struct ContentView: View {
     let windowMaterial: NSVisualEffectView.Material?
 
     init(backdrop: MeshBackdrop = .demo, card: GlassCardModel = .demo,
-         windowMaterial: NSVisualEffectView.Material? = .sidebar) {
+         windowMaterial: NSVisualEffectView.Material? = .sidebar,
+         showsOnboarding: Bool = true) {
         self.backdrop = backdrop
         self.card = card
         self.windowMaterial = windowMaterial
+        // `--snapshot` passes showsOnboarding: false so renders capture the shell.
+        _ui = State(initialValue: UIState(showsOnboarding: showsOnboarding))
     }
 
     /// The concrete color scheme to render: the picked Light/Dark, or the live OS
@@ -40,6 +47,14 @@ struct ContentView: View {
         }
     }
 
+    /// Reduce Motion / Transparency as the system setting OR the in-app override.
+    private var effectiveReduceMotion: Bool {
+        GlassA11y.effective(system: reduceMotion, override: a11y.reduceMotion)
+    }
+    private var effectiveReduceTransparency: Bool {
+        GlassA11y.effective(system: reduceTransparency, override: a11y.reduceTransparency)
+    }
+
     /// Real Liquid Glass on the live window when the OS supports it. The
     /// `--snapshot` path (`windowMaterial == nil`) always uses the fallback stack
     /// so offscreen `ImageRenderer` output stays deterministic.
@@ -50,8 +65,8 @@ struct ContentView: View {
 
     var body: some View {
         appContent
-        .animation(.easeInOut(duration: 0.22), value: ui.leftSidebarVisible)
-        .animation(.easeInOut(duration: 0.22), value: ui.rightSidebarVisible)
+        .animation(effectiveReduceMotion ? nil : .easeInOut(duration: 0.22), value: ui.leftSidebarVisible)
+        .animation(effectiveReduceMotion ? nil : .easeInOut(duration: 0.22), value: ui.rightSidebarVisible)
         // Window-edge border in the same color as the header divider.
         .overlay {
             RoundedRectangle(cornerRadius: Radius.window, style: .continuous)
@@ -61,11 +76,40 @@ struct ContentView: View {
         // Settings modal.
         .overlay {
             if ui.showSettings {
-                SettingsModal(model: model, ui: ui)
+                SettingsModal(model: model, ui: ui, a11y: a11y)
                     .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.18), value: ui.showSettings)
+        // First-run onboarding (shows once; see UIState.completeOnboarding).
+        .overlay {
+            if ui.showOnboarding {
+                OnboardingView(ui: ui)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.18), value: ui.showOnboarding)
+        // Publish shell state to the menu-bar commands (ShellCommands) — they're
+        // scene-level, so they can't see this view's @State directly.
+        .focusedSceneValue(\.uiState, ui)
+        .focusedSceneValue(\.transparencyModel, model)
+        .focusedSceneValue(\.accessibilitySettings, a11y)
+        // In-app a11y overrides for views too deep to receive the model directly.
+        .environment(\.reduceTransparencyOverride, a11y.reduceTransparency)
+        .environment(\.increaseContrastOverride, a11y.increaseContrast)
+        // The app-wide error surface (see ErrorStore) — one alert for all features.
+        .environment(errors)
+        .alert(errors.current?.title ?? "", isPresented: Binding(
+            get: { errors.current != nil },
+            set: { if !$0 { errors.dismiss() } }
+        )) {
+            Button("OK") { errors.dismiss() }
+        } message: {
+            if let current = errors.current { Text(current.message) }
+        }
+        // Deep links (liquidglassdemo://…) — the scheme is registered only in
+        // the packaged app's Info.plist, so this never fires under `swift run`.
+        .onOpenURL(perform: handle)
         // Explicit default pointer for the whole content so a `.link` (hand)
         // cursor from a header/modal control never lingers over the card/main
         // area. Interactive controls override this with their own pointer.
@@ -154,7 +198,7 @@ struct ContentView: View {
             // glass frosts exactly what's behind it (and it stays aligned with
             // the sharp backdrop around the card). Blur amount = the Blur slider.
             backdropView
-                .blur(radius: model.blur)
+                .blur(radius: GlassA11y.blur(model.blur, reduceTransparency: effectiveReduceTransparency))
                 .mask {
                     // Scale the mask region with the fallback hover so the frost
                     // grows in step with the card. Real glass (macOS 26) responds
@@ -171,7 +215,8 @@ struct ContentView: View {
             // also casts the card's shadow, which a transparent glass surface
             // can't do on its own.
             RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
-                .fill(theme.panel.opacity(model.cardAlpha))
+                .fill(theme.panel.opacity(GlassA11y.cardAlpha(model.cardAlpha,
+                                                              reduceTransparency: effectiveReduceTransparency)))
                 .frame(width: HeroCard.width, height: HeroCard.height)
                 .scaleEffect(nativeGlass ? 1 : hoverScale)
                 .shadow(color: .black.opacity(colorScheme == .dark ? 0.5 : 0.18),
@@ -181,7 +226,7 @@ struct ContentView: View {
                 .scaleEffect(nativeGlass ? 1 : hoverScale)
                 .onHover { isHovering in
                     guard !nativeGlass else { return }
-                    withAnimation(.spring(duration: 0.3)) {
+                    withAnimation(effectiveReduceMotion ? nil : .spring(duration: 0.3)) {
                         hoverScale = GlassHover.scale(isHovering: isHovering)
                     }
                 }
@@ -208,6 +253,18 @@ struct ContentView: View {
         backdrop.tinted(with: theme.palette)
     }
 
+    /// Routes a deep link (e.g. `liquidglassdemo://theme/ember`) to app state.
+    private func handle(_ url: URL) {
+        guard let link = DeepLink(url: url) else {
+            AppLog.app.warning("Ignoring unrecognized deep link: \(url.absoluteString, privacy: .public)")
+            return
+        }
+        AppLog.app.notice("Deep link: \(String(describing: link), privacy: .public)")
+        switch link {
+        case .theme(let id): theme.id = id
+        }
+    }
+
     /// Window chrome, transparency, and accessories.
     private func configure(_ window: NSWindow) {
         // Match the window chrome to the resolved scheme. Under System this follows
@@ -228,6 +285,14 @@ struct ContentView: View {
         window.collectionBehavior.insert(.fullScreenPrimary)
         window.standardWindowButton(.zoomButton)?.isEnabled = true
 
+        // Persist the window frame (position + size) across launches; the saved
+        // frame wins over the scene's defaultSize on later opens. Set once —
+        // configure re-runs on every appearance change.
+        if window.frameAutosaveName.isEmpty {
+            window.setFrameUsingName(Prefs.mainWindowFrame, force: true)
+            window.setFrameAutosaveName(Prefs.mainWindowFrame)
+        }
+
         // Install the header accessory buttons once.
         if !window.titlebarAccessoryViewControllers.contains(where: { $0 is HeaderAccessoryController }) {
             // The accessories are hosted in their own NSHostingViews, so the
@@ -245,7 +310,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(showsOnboarding: false)
         .frame(width: 1180, height: 760)
         .environment(ThemeStore())
 }

@@ -51,7 +51,6 @@ enum Typography {
     static let badge = Font.system(size: 11, weight: .semibold)   // hero card theme badge
 
     // Icon sizes (applied to SF Symbols), matched to the labels they sit beside.
-    static let iconHero = Font.system(size: 34, weight: .medium)  // hero card disc glyph
     static let iconLarge = Font.system(size: 14)
     static let icon = Font.system(size: 13)
     static let iconSmall = Font.system(size: 12)
@@ -60,6 +59,8 @@ enum Typography {
 
 /// `UserDefaults` keys for persisted settings, in one place.
 enum Prefs {
+    /// `NSWindow` frame-autosave name for the main window (AppKit owns the entry).
+    static let mainWindowFrame = "MainWindow"
     static let cardOpacity = "lg.cardOpacity"
     static let leftSidebar = "lg.leftSidebar"
     static let rightSidebar = "lg.rightSidebar"
@@ -68,6 +69,17 @@ enum Prefs {
     static let mode = "lg.mode"
     static let theme = "lg.theme"
     static let blur = "lg.blur"
+    static let hasCompletedOnboarding = "lg.hasCompletedOnboarding"
+    static let reduceMotion = "lg.reduceMotion"
+    static let reduceTransparency = "lg.reduceTransparency"
+    static let increaseContrast = "lg.increaseContrast"
+}
+
+extension EnvironmentValues {
+    /// In-app accessibility overrides, pushed from `ContentView`. Defaults are
+    /// off so previews and secondary windows don't need to inject anything.
+    @Entry var reduceTransparencyOverride = false
+    @Entry var increaseContrastOverride = false
 }
 
 /// Strokes a continuous rounded-rectangle border. Implemented as a `ViewModifier`
@@ -76,14 +88,20 @@ enum Prefs {
 /// couldn't, which is what previously forced `Theme` to be a global.
 private struct ThemedBorder: ViewModifier {
     @Environment(ThemeStore.self) private var theme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+    @Environment(\.increaseContrastOverride) private var increaseContrastOverride
     let radius: CGFloat
     let color: Color?
     let width: CGFloat
 
     func body(content: Content) -> some View {
+        // Under Increase Contrast (system or in-app override) the default border
+        // swaps to the stronger text color; explicit colors stay as passed.
+        let increased = colorSchemeContrast == .increased || increaseContrastOverride
+        let stroke = color ?? (increased ? theme.textSecondary : theme.border)
         content.overlay(
             RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .stroke(color ?? theme.border, lineWidth: width)
+                .stroke(stroke, lineWidth: width)
         )
     }
 }

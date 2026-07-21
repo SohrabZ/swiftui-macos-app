@@ -1,0 +1,33 @@
+/* Spanish translations for the L10n scaffold. */
+"Settings" = "Ajustes";
+"Launch at Login" = "Abrir al iniciar sesión";
+"Open LiquidGlassDemo automatically when you log in." = "Abrir LiquidGlassDemo automáticamente al iniciar sesión.";
+"Only available in the installed app." = "Disponible solo en la app instalada.";
+"Theme" = "Tema";
+"Search themes…" = "Buscar temas…";
+"A SwiftUI macOS app boilerplate — themed shell, settings, persistence, and Sparkle updates, wired and tested." = "Una plantilla de app macOS en SwiftUI: interfaz con temas, ajustes, persistencia y actualizaciones Sparkle, lista y probada.";
+
+/* First-run onboarding. */
+"Welcome to LiquidGlassDemo" = "Bienvenido a LiquidGlassDemo";
+"A themed SwiftUI shell for your next macOS app — here's the quick tour." = "Una interfaz SwiftUI con temas para tu próxima app macOS: este es el recorrido rápido.";
+"Six adaptive themes with Light/Dark/System" = "Seis temas adaptables con Claro/Oscuro/Sistema";
+"Menu bar quick access and keyboard shortcuts" = "Acceso rápido desde la barra de menús y atajos de teclado";
+"Sparkle auto-updates and launch at login" = "Actualizaciones automáticas con Sparkle y apertura al iniciar sesión";
+"Get Started" = "Empezar";
+
+/* Accessibility section (settings). */
+"Accessibility" = "Accesibilidad";
+"Layered on top of the system settings." = "Además de los ajustes del sistema.";
+"Reduce Motion" = "Reducir movimiento";
+"Reduce Transparency" = "Reducir transparencia";
+"Increase Contrast" = "Aumentar contraste";
+
+/* Settings sections and accessibility row help. */
+"General" = "General";
+"Appearance" = "Apariencia";
+"Launch and login behavior." = "Comportamiento de arranque e inicio de sesión.";
+"Desktop display preferences." = "Preferencias de visualización del escritorio.";
+"The selected mode is applied on top of the palette." = "El modo seleccionado se aplica sobre la paleta.";
+"Limit hover effects and panel animations." = "Limita los efectos al pasar el cursor y las animaciones de los paneles.";
+"Show solid surfaces instead of see-through glass." = "Muestra superficies sólidas en lugar de cristal translúcido.";
+"Draw borders and separators in stronger colors." = "Dibuja los bordes y los separadores con colores más intensos.";

@@ -1,0 +1,34 @@
+/* English (source language). Keys are the English text — add a translation to
+   de.lproj/Localizable.strings (or a new <lang>.lproj) and expose it in L10n. */
+"Settings" = "Settings";
+"Launch at Login" = "Launch at Login";
+"Open LiquidGlassDemo automatically when you log in." = "Open LiquidGlassDemo automatically when you log in.";
+"Only available in the installed app." = "Only available in the installed app.";
+"Theme" = "Theme";
+"Search themes…" = "Search themes…";
+"A SwiftUI macOS app boilerplate — themed shell, settings, persistence, and Sparkle updates, wired and tested." = "A SwiftUI macOS app boilerplate — themed shell, settings, persistence, and Sparkle updates, wired and tested.";
+
+/* First-run onboarding. */
+"Welcome to LiquidGlassDemo" = "Welcome to LiquidGlassDemo";
+"A themed SwiftUI shell for your next macOS app — here's the quick tour." = "A themed SwiftUI shell for your next macOS app — here's the quick tour.";
+"Six adaptive themes with Light/Dark/System" = "Six adaptive themes with Light/Dark/System";
+"Menu bar quick access and keyboard shortcuts" = "Menu bar quick access and keyboard shortcuts";
+"Sparkle auto-updates and launch at login" = "Sparkle auto-updates and launch at login";
+"Get Started" = "Get Started";
+
+/* Accessibility section (settings). */
+"Accessibility" = "Accessibility";
+"Layered on top of the system settings." = "Layered on top of the system settings.";
+"Reduce Motion" = "Reduce Motion";
+"Reduce Transparency" = "Reduce Transparency";
+"Increase Contrast" = "Increase Contrast";
+
+/* Settings sections and accessibility row help. */
+"General" = "General";
+"Appearance" = "Appearance";
+"Launch and login behavior." = "Launch and login behavior.";
+"Desktop display preferences." = "Desktop display preferences.";
+"The selected mode is applied on top of the palette." = "The selected mode is applied on top of the palette.";
+"Limit hover effects and panel animations." = "Limit hover effects and panel animations.";
+"Show solid surfaces instead of see-through glass." = "Show solid surfaces instead of see-through glass.";
+"Draw borders and separators in stronger colors." = "Draw borders and separators in stronger colors.";

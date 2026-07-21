@@ -88,8 +88,8 @@ struct ThemePicker: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Theme").font(Typography.label).foregroundStyle(theme.textPrimary)
-                    Text("Desktop palettes only. The selected mode is applied on top.")
+                    Text(L10n.theme).font(Typography.label).foregroundStyle(theme.textPrimary)
+                    Text(L10n.themePickerHelp)
                         .font(Typography.footnote).foregroundStyle(theme.textSecondary)
                 }
                 Spacer()
@@ -135,7 +135,7 @@ struct ThemePicker: View {
     private var searchField: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass").font(Typography.iconSmall).foregroundStyle(theme.textSecondary)
-            TextField("Search themes…", text: $search)
+            TextField(L10n.searchThemes, text: $search)
                 .textFieldStyle(.plain)
                 .font(Typography.body)
                 .foregroundStyle(theme.textPrimary)
@@ -170,6 +170,11 @@ struct ThemePicker: View {
         .buttonStyle(.plain)
         .focusEffectDisabled()
         .pointerStyle(.link)
+        // One VoiceOver element per card: name + selected state, not the mockup.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(s.name)
+        .accessibilityHint("Applies the theme")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     /// Mini window mockup. Sizes are relative to the card width so cards scale
