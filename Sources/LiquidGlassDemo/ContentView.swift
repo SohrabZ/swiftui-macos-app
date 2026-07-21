@@ -8,8 +8,10 @@ struct ContentView: View {
     @State private var hoverScale: CGFloat = GlassHover.resting
     @State private var model = TransparencyModel()
     @State private var ui = UIState()
-    @State private var theme = ThemeStore()
     @State private var systemAppearance = SystemAppearance()
+    // Owned by LiquidGlassDemoApp and shared with the MenuBarExtra scene, so a
+    // theme switch from the tray recolors this window live.
+    @Environment(ThemeStore.self) private var theme
     @Environment(\.colorScheme) private var colorScheme
 
     // Fixed card size lives on HeroCard so the frosted-backdrop mask aligns
@@ -82,9 +84,6 @@ struct ContentView: View {
                 WindowConfigurator(version: effectiveScheme, material: windowMaterial) { configure($0) }
             }
         }
-        // Injected once at the root so every descendant (including the modal
-        // overlay and the themedBorder modifier) resolves the same theme.
-        .environment(theme)
     }
 
     /// The app shell: the themed fill over the behind-window vibrancy, plus the
@@ -248,4 +247,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .frame(width: 1180, height: 760)
+        .environment(ThemeStore())
 }
