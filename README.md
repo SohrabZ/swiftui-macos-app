@@ -4,13 +4,14 @@
   <img src="images/hero.png" alt="LiquidGlassDemo — a Liquid Glass card over a grid backdrop in the Slate dark theme" width="820">
 </p>
 
-A **boilerplate macOS app template** built in pure SwiftUI — clone it as the
-starting point for your own desktop app. It ships a themed **Liquid Glass** window
-shell (a collapsible three-column layout with a hero card over a grid backdrop)
-already wired to the pieces every real app needs: adaptive multi-theme support,
-live Light/Dark/System switching, a native settings modal, persisted preferences,
-and the AppKit bridges you reach for when SwiftUI stops short. Built as a Swift
-Package, so there's no Xcode project to open — `swift run` and go.
+A **boilerplate macOS app template** built in pure SwiftUI — clone it (or hit
+**Use this template** above) as the starting point for your own desktop app. It
+ships a themed **Liquid Glass** window shell — native `glassEffect` on macOS 26
+with a tuned fallback on earlier versions — already wired to the pieces every
+real app needs: adaptive multi-theme support, live Light/Dark/System switching,
+a native settings modal, persisted preferences, Sparkle auto-updates, and the
+AppKit bridges you reach for when SwiftUI stops short. Built as a Swift 6
+package (SwiftPM), so there's no Xcode project to open — `swift run` and go.
 
 ## Features
 
