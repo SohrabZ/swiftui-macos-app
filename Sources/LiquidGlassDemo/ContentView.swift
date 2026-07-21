@@ -10,10 +10,10 @@ struct ContentView: View {
     @State private var ui = UIState()
     @State private var theme = ThemeStore()
     @State private var systemAppearance = SystemAppearance()
+    @Environment(\.colorScheme) private var colorScheme
 
-    // Fixed card size so the frosted-backdrop mask aligns exactly with the card.
-    private let cardWidth: CGFloat = 420
-    private let cardHeight: CGFloat = 340
+    // Fixed card size lives on HeroCard so the frosted-backdrop mask aligns
+    // exactly with the card.
 
     /// The window's behind-window vibrancy material: the desktop frosts through the
     /// side margins and sidebars while the titlebar and content stay solid. Defaults
@@ -36,6 +36,14 @@ struct ContentView: View {
         case .dark: .dark
         case .system: systemAppearance.colorScheme
         }
+    }
+
+    /// Real Liquid Glass on the live window when the OS supports it. The
+    /// `--snapshot` path (`windowMaterial == nil`) always uses the fallback stack
+    /// so offscreen `ImageRenderer` output stays deterministic.
+    private var nativeGlass: Bool {
+        if #available(macOS 26, *) { return windowMaterial != nil }
+        return false
     }
 
     var body: some View {
@@ -98,6 +106,7 @@ struct ContentView: View {
                     if ui.leftSidebarVisible {
                         SidebarTint()
                             .frame(width: ui.leftSidebarWidth)
+                            .overlay { SidebarThemes() }
                             .overlay(alignment: .trailing) {
                                 ResizableColumnDivider(ui: ui, edge: .leading)
                             }
@@ -109,6 +118,7 @@ struct ContentView: View {
                     if ui.rightSidebarVisible {
                         SidebarTint()
                             .frame(width: ui.rightSidebarWidth)
+                            .overlay { SidebarInspector(model: model, ui: ui) }
                             .overlay(alignment: .leading) {
                                 ResizableColumnDivider(ui: ui, edge: .trailing)
                             }
@@ -127,6 +137,11 @@ struct ContentView: View {
         theme.background
             .frame(height: Layout.headerHeight)
             .frame(maxWidth: .infinity)
+            .overlay {
+                Text("Liquid Glass")
+                    .font(Typography.label)
+                    .foregroundStyle(theme.textSecondary)
+            }
     }
 
     /// Center column: the glass hero card over the grid. The backdrop fills the
@@ -142,68 +157,56 @@ struct ContentView: View {
             backdropView
                 .blur(radius: model.blur)
                 .mask {
-                    // Scale the mask region with the hover so the frost grows in
-                    // step with the card (the backdrop content itself isn't
-                    // scaled, so it stays aligned with the sharp grid).
+                    // Scale the mask region with the fallback hover so the frost
+                    // grows in step with the card. Real glass (macOS 26) responds
+                    // natively via `.interactive()`, so no scale is applied then.
                     RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
-                        .frame(width: cardWidth, height: cardHeight)
-                        .scaleEffect(hoverScale)
+                        .frame(width: HeroCard.width, height: HeroCard.height)
+                        .scaleEffect(nativeGlass ? 1 : hoverScale)
                 }
 
-            cardView
+            // Card Opacity tint, painted as its own layer UNDER the card surface.
+            // On the native-glass path this is what keeps the slider visibly
+            // effective: `.regular` glass frosts over any tint baked into it, so
+            // the tint lives here instead, showing through the clear glass. It
+            // also casts the card's shadow, which a transparent glass surface
+            // can't do on its own.
+            RoundedRectangle(cornerRadius: Radius.card, style: .continuous)
+                .fill(theme.panel.opacity(model.cardAlpha))
+                .frame(width: HeroCard.width, height: HeroCard.height)
+                .scaleEffect(nativeGlass ? 1 : hoverScale)
+                .shadow(color: .black.opacity(colorScheme == .dark ? 0.5 : 0.18),
+                        radius: 30, y: 14)
+
+            HeroCard(card: card, ui: ui, nativeGlass: nativeGlass)
+                .scaleEffect(nativeGlass ? 1 : hoverScale)
+                .onHover { isHovering in
+                    guard !nativeGlass else { return }
+                    withAnimation(.spring(duration: 0.3)) {
+                        hoverScale = GlassHover.scale(isHovering: isHovering)
+                    }
+                }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipped()
     }
 
-    /// Sharp mesh + grid backdrop for the main content area.
+    /// Sharp mesh + grid backdrop for the main content area, recolored to the
+    /// active theme so a theme switch transforms the hero area too.
     private var backdropView: some View {
         ZStack {
             MeshGradient(
-                width: backdrop.width,
-                height: backdrop.height,
-                points: backdrop.points,
-                colors: backdrop.colors
+                width: themedBackdrop.width,
+                height: themedBackdrop.height,
+                points: themedBackdrop.points,
+                colors: themedBackdrop.colors
             )
             GridPattern()
         }
     }
 
-    /// The glass hero card: a tinted, bordered panel over the frosted backdrop.
-    /// Card Opacity fades the tint (revealing more of the frost); the frost
-    /// itself (behind it) is always present, so it never becomes plain glass.
-    private var cardView: some View {
-        VStack(spacing: 24) {
-            Image(systemName: card.iconName)
-                .font(.system(size: 64))
-                .foregroundStyle(theme.accent)
-
-            Text(card.title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundStyle(theme.textPrimary)
-
-            Text(card.subtitle)
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(theme.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.horizontal, 36)
-        .frame(width: cardWidth, height: cardHeight)
-        .background(
-            // Tint scales the full 0→1 range: 100% = solid panel, lower reveals
-            // the frosted backdrop behind it (glass), 0% = pure frost.
-            RoundedRectangle(cornerRadius: Radius.card)
-                .fill(theme.panel.opacity(model.cardAlpha))
-        )
-        .themedBorder(Radius.card)
-        .scaleEffect(hoverScale)
-        .onHover { isHovering in
-            withAnimation(.spring(duration: 0.3)) {
-                hoverScale = GlassHover.scale(isHovering: isHovering)
-            }
-        }
+    private var themedBackdrop: MeshBackdrop {
+        backdrop.tinted(with: theme.palette)
     }
 
     /// Window chrome, transparency, and accessories.

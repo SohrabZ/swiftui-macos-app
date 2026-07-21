@@ -32,6 +32,9 @@ enum Layout {
     // Chrome icon button (IconButton).
     static let iconButtonWidth: CGFloat = 26
     static let iconButtonHeight: CGFloat = 24
+
+    // Hero card (HeroCard).
+    static let heroDisc: CGFloat = 76  // gradient icon disc diameter
 }
 
 /// The UI type ramp. Named by role so the app's chrome stays consistent and a
@@ -45,8 +48,10 @@ enum Typography {
     static let control = Font.system(size: 12, weight: .medium)   // segmented control, percent
     static let caption = Font.system(size: 12)                    // descriptions
     static let footnote = Font.system(size: 11)                   // help text
+    static let badge = Font.system(size: 11, weight: .semibold)   // hero card theme badge
 
     // Icon sizes (applied to SF Symbols), matched to the labels they sit beside.
+    static let iconHero = Font.system(size: 34, weight: .medium)  // hero card disc glyph
     static let iconLarge = Font.system(size: 14)
     static let icon = Font.system(size: 13)
     static let iconSmall = Font.system(size: 12)
