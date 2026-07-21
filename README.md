@@ -4,6 +4,12 @@
   <img src="images/hero.png" alt="LiquidGlassDemo — a Liquid Glass card over a grid backdrop in the Slate dark theme" width="820">
 </p>
 
+<p align="center">
+  <a href="https://sohrabz.github.io/swiftui-macos-app/"><b>Website</b></a> ·
+  <a href="https://github.com/SohrabZ/swiftui-macos-app/releases">Releases</a> ·
+  <a href="https://github.com/SohrabZ/swiftui-macos-app/issues">Issues</a>
+</p>
+
 A **boilerplate macOS app template** built in pure SwiftUI — clone it (or hit
 **Use this template** above) as the starting point for your own desktop app. It
 ships a themed **Liquid Glass** window shell — native `glassEffect` on macOS 26
